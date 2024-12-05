@@ -1,7 +1,6 @@
 // Importar Firebase y módulos necesarios
 import { auth, database } from "./firebase-config.js";
 import { ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
- Importar Firebase Authentication
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
 // Importar Three.js
