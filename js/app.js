@@ -1,5 +1,12 @@
 // app.js
-import { database } from './firebase-config.js';
+import { database } from "./firebase-config.js";
+
+// Interacción con Firebase
+import { ref, set } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+
+const dbRef = ref(database, "3DData");
+set(dbRef, { rotationX: 0.01, rotationY: 0.01 });
+
 
 // Guardar datos en la base de datos
 function savePlayerData(playerData) {
