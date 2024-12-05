@@ -7,6 +7,7 @@ let cube, floor;
 let touchStartX = 0, touchStartY = 0;
 let touchMoveX = 0, touchMoveY = 0;
 let speed = 0.1;
+let cameraOffset = { x: 0, y: 5, z: 10 };
 
 // Inicializar la escena
 function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
@@ -20,7 +21,7 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
     0.1,
     1000
   );
-  camera.position.set(0, 5, 10);
+  updateCameraPosition(initialPosition);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer();
@@ -53,6 +54,16 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
 
   // Iniciar animación
   animate();
+}
+
+// Actualizar posición de la cámara para tercera persona
+function updateCameraPosition(targetPosition) {
+  camera.position.set(
+    targetPosition.x + cameraOffset.x,
+    targetPosition.y + cameraOffset.y,
+    targetPosition.z + cameraOffset.z
+  );
+  camera.lookAt(targetPosition.x, targetPosition.y, targetPosition.z);
 }
 
 // Manejar inicio del toque
@@ -91,6 +102,9 @@ function handleTouchEnd() {
       cube.position.z -= speed; // Mover hacia adelante
     }
   }
+
+  // Actualizar cámara en tercera persona
+  updateCameraPosition(cube.position);
 
   // Resetear variables táctiles
   touchStartX = 0;
