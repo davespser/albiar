@@ -1,100 +1,80 @@
-// Importar módulos y configuración
-import { ref, set, get } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-import { database } from "./firebaseConfig.js";
+// Importa las funciones necesarias
+import { database } from "./firebase-config.js";
+import {
+  ref,
+  update
+} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+import { loadThreeScene } from "./three-scene.js";
 
-// Variables globales
-let username = "";
+// Mostrar el cuestionario
+export function loadCharacterCreator(userId) {
+  // Crear la interfaz del cuestionario
+  document.body.innerHTML = `
+    <h1>Creación de Personaje</h1>
+    <form id="character-form">
+      ${generateQuestions()}
+      <button type="submit">Finalizar</button>
+    </form>
+  `;
 
-// Inicializar Character Creator
-function loadCharacterCreator(user) {
-  username = user;
+  // Manejar el envío del formulario
+  document.getElementById("character-form").addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  // Crear contenedor del cuestionario
-  const quizDiv = document.createElement("div");
-  quizDiv.style.position = "absolute";
-  quizDiv.style.top = "50%";
-  quizDiv.style.left = "50%";
-  quizDiv.style.transform = "translate(-50%, -50%)";
-  quizDiv.style.padding = "20px";
-  quizDiv.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-  quizDiv.style.color = "white";
-  quizDiv.style.borderRadius = "10px";
-  quizDiv.style.fontFamily = "Arial, sans-serif";
-  quizDiv.style.textAlign = "center";
-  quizDiv.style.width = "80%";
-  quizDiv.style.maxWidth = "600px";
-  document.body.appendChild(quizDiv);
+    // Obtener las respuestas del cuestionario
+    const formData = new FormData(event.target);
+    const answers = Array.from(formData.values()).map(Number);
 
-  // Crear título del cuestionario
-  const title = document.createElement("h1");
-  title.innerText = "¡Crea tu personaje!";
-  quizDiv.appendChild(title);
+    // Calcular las estadísticas base (Fuerza, Destreza, Inteligencia)
+    const { strength, dexterity, intelligence } = calculateBaseStats(answers);
 
-  // Crear formulario del cuestionario
-  const form = document.createElement("form");
-  form.id = "characterForm";
+    // Calcular el color del personaje
+    const color = calculateColor(strength, dexterity, intelligence);
 
-  for (let i = 1; i <= 21; i++) {
-    const questionDiv = document.createElement("div");
-    questionDiv.style.marginBottom = "10px";
-
-    const label = document.createElement("label");
-    label.innerText = `Pregunta ${i}:`;
-    label.style.display = "block";
-    questionDiv.appendChild(label);
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.name = `question${i}`;
-    input.required = true;
-    input.style.width = "100%";
-    input.style.padding = "5px";
-    questionDiv.appendChild(input);
-
-    form.appendChild(questionDiv);
-  }
-
-  // Botón de enviar
-  const submitButton = document.createElement("button");
-  submitButton.type = "submit";
-  submitButton.innerText = "Terminar";
-  submitButton.style.padding = "10px 20px";
-  submitButton.style.marginTop = "20px";
-  submitButton.style.backgroundColor = "#4CAF50";
-  submitButton.style.color = "white";
-  submitButton.style.border = "none";
-  submitButton.style.cursor = "pointer";
-  form.appendChild(submitButton);
-
-  quizDiv.appendChild(form);
-
-  // Manejar envío del formulario
-  form.addEventListener("submit", handleQuizSubmission);
-}
-
-// Manejar envío del cuestionario
-async function handleQuizSubmission(event) {
-  event.preventDefault();
-
-  const formData = new FormData(event.target);
-  const answers = {};
-
-  for (let [key, value] of formData.entries()) {
-    answers[key] = value;
-  }
-
-  // Guardar respuestas en Firebase
-  const userRef = ref(database, `users/${username}/character`);
-  await set(userRef, answers);
-
-  // Eliminar el cuestionario de la vista
-  const quizDiv = document.querySelector("div");
-  document.body.removeChild(quizDiv);
-
-  // Cargar escena Three.js
-  import("./three-scene.js").then((module) => {
-    module.loadThreeScene();
+    // Guardar los datos del personaje en la base de datos
+    update(ref(database, `players/${userId}`), {
+      characterCreated: true,
+      stats: { strength, dexterity, intelligence },
+      color
+    })
+      .then(() => {
+        console.log("Personaje creado con éxito.");
+        // Cargar la escena principal
+        loadThreeScene({ x: 0, y: 0, z: 0 });
+      })
+      .catch((error) => {
+        console.error("Error al guardar el personaje:", error.message);
+      });
   });
 }
 
-export { loadCharacterCreator };
+// Generar las preguntas del cuestionario
+function generateQuestions() {
+  let questions = "";
+  for (let i = 1; i <= 21; i++) {
+    questions += `
+      <label for="question-${i}">Pregunta ${i}:</label>
+      <input type="number" id="question-${i}" name="question-${i}" min="1" max="5" required>
+      <br>
+    `;
+  }
+  return questions;
+}
+
+// Calcular estadísticas base
+function calculateBaseStats(answers) {
+  const total = answers.reduce((sum, value) => sum + value, 0);
+  const strength = answers.slice(0, 7).reduce((sum, value) => sum + value, 0) / total;
+  const dexterity = answers.slice(7, 14).reduce((sum, value) => sum + value, 0) / total;
+  const intelligence = answers.slice(14).reduce((sum, value) => sum + value, 0) / total;
+
+  return { strength, dexterity, intelligence };
+}
+
+// Calcular el color del personaje
+function calculateColor(strength, dexterity, intelligence) {
+  const r = Math.round(strength * 255);
+  const g = Math.round(dexterity * 255);
+  const b = Math.round(intelligence * 255);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
