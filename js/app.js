@@ -33,9 +33,9 @@ animate();
 function savePlayerPosition(position) {
   const playerRef = database.ref('playerPosition');
   playerRef.set({
-    x: position.x,
-    y: position.y,
-    z: position.z
+    x: 10,
+    y: 20,
+    z: 30
   });
 }
 
