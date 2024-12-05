@@ -1,4 +1,16 @@
-// firebase-config.js
+import { database } from './firebase-config.js';
+
+// Guardar datos en la base de datos
+function savePlayerData(playerData) {
+  database.ref('players/123').set(playerData);
+}
+
+// Cargar datos desde la base de datos
+function loadPlayerData() {
+  database.ref('players/123').once('value', (snapshot) => {
+    console.log(snapshot.val());
+  });
+}// firebase-config.js
 
 // Configuración de Firebase
 const firebaseConfig = {
