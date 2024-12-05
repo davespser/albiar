@@ -1,12 +1,9 @@
-// Importar Three.js
-import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.138.3/three.min.js";
-
-// Importar OrbitControls
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/controls/OrbitControls.js";
-
-// Importar la base de datos para actualizar estadísticas
+// Importar funciones necesarias
 import { database } from "./firebase-config.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+import {
+  ref,
+  update
+} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
 let scene, camera, renderer, cube, userId;
 
@@ -50,7 +47,7 @@ function initScene(position) {
   camera.position.z = 5;
 
   // Controles de tercera persona
-  const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.target = cube.position;
 }
 
