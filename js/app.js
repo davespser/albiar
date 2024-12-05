@@ -60,7 +60,19 @@ function loadPlayerData(userId) {
       console.error("Error al cargar datos:", error);
     });
 }
+// Manejar el registro
+function handleRegister() {
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+  registerUser(email, password);
+}
 
+// Manejar el inicio de sesión
+function handleLogin() {
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+  loginUser(email, password);
+}
 // Escuchar cambios en tiempo real (opcional)
 function listenForPlayerUpdates(userId) {
   const playerRef = ref(database, 'players/' + userId);
