@@ -1,4 +1,4 @@
-// Importar funciones necesarias
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js'; // Using CDN// Importar funciones necesarias
 import { database } from "./firebase-config.js";
 import {
   ref,
