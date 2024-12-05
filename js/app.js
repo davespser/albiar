@@ -12,6 +12,7 @@ import {
   set
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 import { loadThreeScene, unloadThreeScene } from "./three-scene.js";
+import { loadCharacterCreator } from "./characterCreator.js";
 
 // Registro de usuario
 function handleRegister() {
@@ -26,7 +27,8 @@ function handleRegister() {
       // Guardar datos iniciales del usuario en la base de datos
       const initialData = {
         level: 1,
-        position: { x: 0, y: 0, z: 0 }
+        position: { x: 0, y: 0, z: 0 },
+        characterCreated: false // Flag para verificar si completó el cuestionario
       };
       saveUserData(user.uid, initialData);
     })
@@ -42,7 +44,7 @@ function handleLogin() {
 
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      console.log("Usuario iniciado sesión:", userCredential.user);
+      console.log("Usuario inició sesión:", userCredential.user);
     })
     .catch((error) => {
       console.error("Error al iniciar sesión:", error.message);
@@ -80,8 +82,14 @@ function loadUserData(userId) {
         const userData = snapshot.val();
         console.log("Datos del usuario cargados:", userData);
 
-        // Inicializar la escena con los datos cargados
-        loadThreeScene(userData.position);
+        // Verificar si ya completó el cuestionario de creación de personaje
+        if (!userData.characterCreated) {
+          // Si no lo completó, cargar el creador de personajes
+          loadCharacterCreator(userId);
+        } else {
+          // Si ya lo completó, cargar la escena principal
+          loadThreeScene(userData.position);
+        }
       } else {
         console.log("No se encontraron datos para este usuario.");
       }
@@ -96,7 +104,7 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Sesión activa con usuario:", user);
 
-    // Cargar datos del usuario e iniciar la escena
+    // Cargar datos del usuario e iniciar la escena o el creador de personajes
     loadUserData(user.uid);
   } else {
     console.log("No hay ningún usuario conectado.");
