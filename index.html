@@ -5,16 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mundo Interactivo 3D</title>
 
-  <!-- Carga de librerías externas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> <!-- Three.js -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js"></script> <!-- Firebase App -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js"></script> <!-- Firebase Database -->
-
-  <!-- Estilos básicos -->
+  <!-- Carga de estilos básicos -->
   <style>
     body {
       margin: 0;
-      overflow: hidden; /* Quita las barras de desplazamiento */
+      overflow: hidden; /* Quita barras de desplazamiento */
       font-family: Arial, sans-serif;
       background-color: #111; /* Fondo oscuro */
       color: #fff; /* Texto blanco */
@@ -42,11 +37,11 @@
     <p>Usa las teclas de flecha para moverte.</p>
   </div>
 
-  <!-- Canvas para renderizar con Three.js -->
+  <!-- Canvas para renderizar -->
   <canvas id="threeCanvas"></canvas>
 
-  <!-- Carga de tus scripts -->
- <script type="module" src="js/firebase-config.js"></script>
-<script type="module" src="js/app.js"></script><!-- Lógica de la aplicación 3D -->
+  <!-- Carga de scripts con módulos -->
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
