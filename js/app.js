@@ -6,7 +6,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,onA
 // Importar Three.js
 import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js";
 
-const auth = getAuth();
+
 
 // Función para registrar un nuevo usuario
 function registerUser(email, password) {
