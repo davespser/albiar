@@ -1,8 +1,8 @@
 // Importar Three.js
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js";
 
 // Importar OrbitControls
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/controls/OrbitControls.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/controls/OrbitControls.js";
 
 // Importar la base de datos para actualizar estadísticas
 import { database } from "./firebase-config.js";
