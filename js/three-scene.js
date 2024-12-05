@@ -1,5 +1,5 @@
 // Importar Three.js
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js";
+import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.138.3/three.min.js";
 
 // Importar OrbitControls
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.0/examples/jsm/controls/OrbitControls.js";
