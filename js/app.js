@@ -1,12 +1,48 @@
 // Importar Firebase y módulos necesarios
 import { database } from "./firebase-config.js";
 import { ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+ Importar Firebase Authentication
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
 // Importar Three.js
 import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js";
 
+const auth = getAuth();
+
+// Función para registrar un nuevo usuario
+function registerUser(email, password) {
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log("Usuario registrado:", user);
+    })
+    .catch((error) => {
+      console.error("Error al registrar usuario:", error.message);
+    });
+}
+
+// Función para iniciar sesión
+function loginUser(email, password) {
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log("Usuario logueado:", user);
+      loadPlayerData(user.uid); // Cargar datos del jugador al iniciar sesión
+    })
+    .catch((error) => {
+      console.error("Error al iniciar sesión:", error.message);
+    });
+}
 // Generar un Player ID único
-const playerID = push(ref(database, "players")).key;
+const playerId = auth.currentUser.uid; // ID único del usuario logueado
+const playerData = {
+  name: "Mi Cubo",
+  level: 1,
+  position: { x: 0, y: 0, z: 0 }
+};
+
+savePlayerData(playerId, playerData); // Guardar datos asociados al usuario
+loadPlayerData(playerId); // Cargar datos del usuario
 
 // Configuración inicial de datos del jugador
 const playerData = {
