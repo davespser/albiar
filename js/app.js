@@ -1,8 +1,8 @@
 // Importar Firebase y módulos necesarios
-import { database } from "./firebase-config.js";
+import { auth, database } from "./firebase-config.js";
 import { ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
  Importar Firebase Authentication
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
 // Importar Three.js
 import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js";
@@ -14,7 +14,8 @@ function registerUser(email, password) {
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log("Usuario registrado:", user);
+      console.log("Usuario registrado:", user.uid);
+     loadPlayerData(user.uid)
     })
     .catch((error) => {
       console.error("Error al registrar usuario:", error.message);
