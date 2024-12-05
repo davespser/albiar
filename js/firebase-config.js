@@ -1,7 +1,7 @@
 // Importa las funciones necesarias de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-
+import {getAuth} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"
 // Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDhzxutPaa1OxXDe2d4T5pNxGkNsrdlifs",
