@@ -1,14 +1,14 @@
-// Importar Firebase y módulos necesarios
 import { auth, database } from "./firebase-config.js";
-import { ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+import { loadThreeScene, unloadThreeScene } from "./three-scene.js"; // Asegúrate de crear el archivo three-scene.js
 
-// Importar Three.js
-import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js";
-
-
-
-// Función para registrar un nuevo usuario
+// Función para registrar un usuario nuevo
 function registerUser(email, password) {
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -22,72 +22,85 @@ function registerUser(email, password) {
         position: { x: 0, y: 0, z: 0 }
       };
       set(ref(database, 'players/' + user.uid), initialData);
+      alert("Usuario registrado con éxito.");
     })
     .catch((error) => {
       console.error("Error al registrar usuario:", error.message);
+      alert("Error al registrar usuario: " + error.message);
     });
 }
 
-// Función para iniciar sesión con un usuario existente
+// Función para iniciar sesión
 function loginUser(email, password) {
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log("Usuario logueado:", user.uid);
-
-      // Cargar datos del jugador al iniciar sesión
-      loadPlayerData(user.uid);
+      console.log("Inicio de sesión exitoso:", user.uid);
+      alert("Inicio de sesión exitoso.");
     })
     .catch((error) => {
       console.error("Error al iniciar sesión:", error.message);
+      alert("Error al iniciar sesión: " + error.message);
     });
 }
 
-// Cargar datos del jugador desde la base de datos
+// Función para cerrar sesión
+function logoutUser() {
+  signOut(auth)
+    .then(() => {
+      console.log("Usuario desconectado.");
+      unloadThreeScene();
+      alert("Sesión cerrada.");
+    })
+    .catch((error) => {
+      console.error("Error al cerrar sesión:", error.message);
+      alert("Error al cerrar sesión: " + error.message);
+    });
+}
+
+// Función para cargar datos del jugador desde la base de datos
 function loadPlayerData(userId) {
   get(ref(database, 'players/' + userId))
     .then((snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         console.log("Datos del jugador cargados:", data);
-        // Aquí podrías usar los datos para mover o mostrar el cubo en Three.js
+
+        // Inicializar la escena del cubo con los datos del jugador
+        loadThreeScene(data.position);
       } else {
         console.log("No se encontraron datos para este usuario.");
       }
     })
     .catch((error) => {
-      console.error("Error al cargar datos:", error);
+      console.error("Error al cargar datos:", error.message);
     });
 }
-// Manejar el registro
-function handleRegister() {
-  const email = document.getElementById("register-email").value;
-  const password = document.getElementById("register-password").value;
-  registerUser(email, password);
-}
 
-// Manejar el inicio de sesión
-function handleLogin() {
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-  loginUser(email, password);
-}
-// Escuchar cambios en tiempo real (opcional)
-function listenForPlayerUpdates(userId) {
-  const playerRef = ref(database, 'players/' + userId);
-  onValue(playerRef, (snapshot) => {
-    const updatedData = snapshot.val();
-    console.log("Datos actualizados:", updatedData);
-    // Actualiza el cubo en Three.js aquí si es necesario
-  });
-}
-
-// Verificar si el usuario está logueado (opcional)
+// Detectar el estado de autenticación
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Usuario conectado:", user.uid);
-    loadPlayerData(user.uid);
+    loadPlayerData(user.uid); // Cargar datos y escena si el usuario está autenticado
   } else {
-    console.log("Usuario desconectado.");
+    console.log("Usuario no conectado.");
+    unloadThreeScene(); // Asegurarse de que la escena se descargue si no hay usuario
   }
 });
+
+// Manejar registro e inicio de sesión desde los botones
+window.handleRegister = () => {
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+  registerUser(email, password);
+};
+
+window.handleLogin = () => {
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
+  loginUser(email, password);
+};
+
+window.handleLogout = () => {
+  logoutUser();
+};
