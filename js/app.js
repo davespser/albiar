@@ -43,7 +43,31 @@ function loginUser(email, password) {
       alert("Error al iniciar sesión: " + error.message);
     });
 }
+function saveUserData(userId, data) {
+  set(ref(database, `players/${userId}`), data)
+    .then(() => {
+      console.log("Datos del usuario guardados correctamente.");
+    })
+    .catch((error) => {
+      console.error("Error al guardar los datos del usuario:", error.message);
+    });
+}
 
+// Llamar esta función después del registro:
+registerUser(email, password) {
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      const initialData = {
+        level: 1,
+        position: { x: 0, y: 0, z: 0 }
+      };
+      saveUserData(user.uid, initialData);
+    })
+    .catch((error) => {
+      console.error(error.message);
+    });
+}
 // Función para cerrar sesión
 function logoutUser() {
   signOut(auth)
@@ -59,23 +83,47 @@ function logoutUser() {
 }
 
 // Función para cargar datos del jugador desde la base de datos
-function loadPlayerData(userId) {
-  get(ref(database, 'players/' + userId))
+
+function loadUserData(userId) {
+  get(ref(database, `players/${userId}`))
     .then((snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        console.log("Datos del jugador cargados:", data);
+        const userData = snapshot.val();
+        console.log("Datos del usuario cargados:", userData);
 
-        // Inicializar la escena del cubo con los datos del jugador
-        loadThreeScene(data.position);
+        // Inicializa la escena de Three.js con los datos cargados
+        loadThreeScene(userData.position);
       } else {
         console.log("No se encontraron datos para este usuario.");
       }
     })
     .catch((error) => {
-      console.error("Error al cargar datos:", error.message);
+      console.error("Error al cargar los datos del usuario:", error.message);
     });
 }
+function updateUserPosition(userId, newPosition) {
+  set(ref(database, `players/${userId}/position`), newPosition)
+    .then(() => {
+      console.log("Posición actualizada en la base de datos.");
+    })
+    .catch((error) => {
+      console.error("Error al actualizar la posición:", error.message);
+    });
+}
+
+// Llamar esta función cuando cambie la posición en Three.js:
+function onCubeMove(newPosition) {
+  const user = auth.currentUser;
+  if (user) {
+    updateUserPosition(user.uid, newPosition);
+  }
+}
+// Llamar esta función al iniciar sesión:
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadUserData(user.uid);
+  }
+});
 
 // Detectar el estado de autenticación
 onAuthStateChanged(auth, (user) => {
