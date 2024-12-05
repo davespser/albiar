@@ -56,7 +56,7 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   scene.add(directionalLight);
 
   // Crear suelo con textura
-  const floorTexture = new THREE.TextureLoader().load("https://threejs.org/examples/textures/grasslight-big.jpg");
+  const floorTexture = new THREE.TextureLoader().load("https://ipadg.ghom.cn/Public/threejs/examples/textures/terrain/grasslight-big.jpg");
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(10, 10);
