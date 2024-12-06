@@ -35,12 +35,13 @@ const questions = [
 // Elementos del DOM
 const container = document.createElement("div");
 container.id = "questionnaire";
-container.style.position = "flex";
+container.style.position = "absolute";
 container.style.top = "60%";
 container.style.left = "90%";
 container.style.fontsize = "15";
 container.style.transform = "translate(-20%, -20%)";
-container.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+container.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+comtainer.style.alignitems = "flex-start";
 container.style.color = "White";
 container.style.padding = "60px";
 container.style.borderRadius = "10px";
