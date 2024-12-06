@@ -1,5 +1,5 @@
 // Importa las funciones necesarias
-import { auth, database } from "/firebase-config.js";
+import { auth, database } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -7,7 +7,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 import { loadCharacterCreator } from "./characterCreator.js";
-import { loadThreeScene } from "/three-scene.js";
+import { loadThreeScene } from "./three-scene.js";
 
 // Registro de usuario
 function handleRegister() {
