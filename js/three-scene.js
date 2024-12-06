@@ -5,7 +5,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.m
 // Variables globales
 let scene, camera, renderer;
 let cube, floor;
-let speed = 0.1; // Velocidad del cubo basada en la estadística "speed"
+let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
 
 // Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
