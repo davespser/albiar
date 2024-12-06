@@ -33,7 +33,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   scene.add(directionalLight);
 
   // Crear suelo con textura
-  const floorTexture = new THREE.TextureLoader().load("./grasslight-big.png");
+  const floorTexture = new THREE.TextureLoader().load("./js/grasslight-big.png");
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(10, 10);
