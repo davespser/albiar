@@ -71,7 +71,7 @@ submitButton.addEventListener("click", async () => {
     SPD: (g / 255)  * 100,
     MAG: (b / 255) * 100,
     DEF: ((r / 255) * 100,
-    ACC: ((g + b) / (2 * 255) * 100,
+    ACC: (g + b) / (2 * 255) * 100,
     VIT: ((r + g + b) / 3 * 255) * 100
   };
 
