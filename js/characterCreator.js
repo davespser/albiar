@@ -44,7 +44,7 @@ container.style.color = "white";
 container.style.padding = "20px";
 container.style.borderRadius = "10px";
 container.style.fontFamily = "Arial, sans-serif";
-container.style.textAlign = "center";
+container.style.textAlign = "justify";
 document.body.appendChild(container);
 
 const submitButton = document.createElement("button");
