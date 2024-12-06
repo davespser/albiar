@@ -10,11 +10,10 @@ import {
   ref,
   get,
   set
-} 
-  from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-
+} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 import { loadThreeScene, unloadThreeScene } from "./three-scene.js";
 import { loadCharacterCreator } from "./characterCreator.js";
+
 // Registro de usuario
 function handleRegister() {
   const email = document.getElementById("register-email").value;
@@ -46,47 +45,78 @@ function handleLogin() {
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       console.log("Usuario inició sesión:", userCredential.user);
-
-      // Lógica para cargar la pantalla correcta
-      const userRef = ref(database, `players/${userCredential.user.uid}`);
-      get(userRef).then((snapshot) => {
-        if (snapshot.exists() && snapshot.val().characterCreated) {
-          // Si el cuestionario ya fue completado, cargar el juego
-          showScreen("game-screen");
-          loadThreeScene({
-            ...snapshot.val().position,
-            color: snapshot.val().color,
-            stats: snapshot.val().derivedStats
-          });
-        } else {
-          // Si no se completó, cargar el cuestionario
-          showScreen("questionnaire-screen");
-          loadCharacterCreator(userCredential.user.uid);
-        }
-      });
     })
     .catch((error) => {
       console.error("Error al iniciar sesión:", error.message);
     });
 }
 
+// Cerrar sesión
+function handleLogout() {
+  signOut(auth)
+    .then(() => {
+      console.log("Usuario desconectado");
+      unloadThreeScene(); // Desmontar la escena si el usuario cierra sesión
+    })
+    .catch((error) => {
+      console.error("Error al cerrar sesión:", error.message);
+    });
+}
+
+// Guardar datos en la base de datos
+function saveUserData(userId, data) {
+  set(ref(database, `players/${userId}`), data)
+    .then(() => {
+      console.log("Datos del usuario guardados correctamente.");
+    })
+    .catch((error) => {
+      console.error("Error al guardar los datos del usuario:", error.message);
+    });
+}
+
+// Cargar datos del usuario desde la base de datos
+function loadUserData(userId) {
+  get(ref(database, `players/${userId}`))
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        console.log("Datos del usuario cargados:", userData);
+
+        // Verificar si ya completó el cuestionario de creación de personaje
+        if (!userData.characterCreated) {
+          console.log("Cargando creador de personaje...");
+          loadCharacterCreator(userId);
+        } else {
+          console.log("Cargando escena principal...");
+          loadThreeScene({
+            ...userData.position,
+            color: userData.color,
+            stats: userData.derivedStats // Usar las estadísticas calculadas previamente
+          });
+        }
+      } else {
+        console.log("No se encontraron datos para este usuario.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error al cargar los datos del usuario:", error.message);
+    });
+}
+
 // Escuchar el estado de autenticación
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    handleLogin();
+    console.log("Sesión activa con usuario:", user);
+
+    // Cargar datos del usuario e iniciar la escena o el creador de personajes
+    loadUserData(user.uid);
   } else {
-    showScreen("login-screen");
+    console.log("No hay ningún usuario conectado.");
+    unloadThreeScene(); // Desmontar la escena si no hay usuario
   }
 });
 
-// Mostrar pantallas
-function showScreen(screenId) {
-  document.querySelectorAll(".screen").forEach((screen) => {
-    screen.classList.remove("active");
-  });
-  document.getElementById(screenId).classList.add("active");
-}
-
-// Exportar funciones al ámbito global
-window.handleLogin = handleLogin;
+// Exportar funciones para usarlas en el HTML
 window.handleRegister = handleRegister;
+window.handleLogin = handleLogin;
+window.handleLogout = handleLogout;
