@@ -36,15 +36,15 @@ const questions = [
 const container = document.createElement("div");
 container.id = "questionnaire";
 container.style.position = "absolute";
-container.style.top = "10%";
-container.style.left = "80%";
+container.style.top = "30%";
+container.style.left = "90%";
 container.style.transform = "translate(-50%, -50%)";
 container.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-container.style.color = "white";
+container.style.color = "green";
 container.style.padding = "20px";
 container.style.borderRadius = "10px";
 container.style.fontFamily = "Arial, sans-serif";
-container.style.textAlign = "justify";
+container.style.textAlign = "left";
 document.body.appendChild(container);
 
 const submitButton = document.createElement("button");
