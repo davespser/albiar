@@ -1,5 +1,5 @@
 // script.js
-import { gsap } from 'gsap';
+import { gsap } from 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
@@ -55,7 +55,13 @@ menuButton.addEventListener('click', () => {
     // o mostrar/ocultar elementos del menú
 });
 // ... (resto de tu código Three.js)
-
+menuButton.addEventListener('click', () => {
+    gsap.to(plane.scale, {
+        x: 2, // Escala en el eje X a 2
+        duration: 0.5, // Duración de la animación en segundos
+        ease: "power2.out" // Tipo de easing para la animación
+    });
+});
 gsap.to(plane.scale, {
     x: 2,
     duration: 0.5,
