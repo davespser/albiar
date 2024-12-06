@@ -7,8 +7,8 @@ import { loadThreeScene } from "./three-scene.js";
 
 // Preguntas del cuestionario (7 para cada color)
 const questions = [
-  "¿Qué tan fuerte te consideras físicamente? (1-5)",
-  "¿Qué tan decidido eres al enfrentar desafíos? (1-5)",
+  "¿Qué tan fuerte eres? (1-5)",
+  "¿Qué tan decidido eres frente a desafíos? (1-5)",
   "¿Cómo evaluarías tu resistencia física? (1-5)",
   "¿Qué tan valiente te sientes en situaciones de riesgo? (1-5)",
   "¿Qué tan rápido te recuperas de un esfuerzo físico? (1-5)",
@@ -21,7 +21,7 @@ const questions = [
   "¿Qué tan preciso eres al realizar tareas? (1-5)",
   "¿Qué tan equilibrado te sientes físicamente? (1-5)",
   "¿Qué tan reactivo eres ante estímulos? (1-5)",
-  "¿Qué tan eficiente eres en actividades físicas de corta duración? (1-5)",
+  "¿Qué tan eficiente eres corriendo? (1-5)",
 
   "¿Qué tan lógico eres al resolver problemas? (1-5)",
   "¿Qué tan creativo eres en tus ideas? (1-5)",
@@ -36,7 +36,7 @@ const questions = [
 const container = document.createElement("div");
 container.id = "questionnaire";
 container.style.position = "absolute";
-container.style.top = "20%";
+container.style.top = "5%";
 container.style.right = "20px"; // Cambia 'left' a 'right' para posicionarlo a la derecha
 container.style.fontSize = "15px"; // Corrección de error tipográfico
 container.style.display = "flex";
