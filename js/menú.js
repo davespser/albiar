@@ -42,3 +42,15 @@ function onMouseClick(event) {
 }
 
 window.addEventListener('click', onMouseClick, false);
+
+// ... (resto de tu código Three.js)
+
+// Obtener el botón del menú
+const menuButton = document.getElementById('menu-button');
+
+// Agregar un evento de clic al botón
+menuButton.addEventListener('click', () => {
+    // Aquí puedes agregar la lógica para desplegar el menú
+    // Por ejemplo, puedes animar el plano para que se expanda
+    // o mostrar/ocultar elementos del menú
+});
