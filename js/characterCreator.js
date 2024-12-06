@@ -38,7 +38,7 @@ container.id = "questionnaire";
 container.style.position = "absolute";
 container.style.top = "70%";
 container.style.left = "70%";
-container.dtyle.fontSize: 15;
+container.dtyle.fontSize = "15px";
 container.style.transform = "translate(-50%, -50%)";
 container.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
 container.style.color = "White";
