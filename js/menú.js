@@ -1,69 +1,86 @@
-// script.js
-import { gsap } from 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js';
+// Importar Three.js y GSAP
+import * as THREE from 'three';
+import { gsap } from 'gsap';
+
+// Crear la escena, cámara y renderizador
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-// ... (resto de tu código Three.js)
 
-// Crear un canvas HTML para renderizar el menú
-const canvas = document.createElement('canvas');
-const context = canvas.getContext('2d');
-
-// Ajustar el tamaño del canvas para que coincida con el tamaño del menú
-canvas.width = menuContainer.offsetWidth;
-canvas.height = menuContainer.offsetHeight;
-
-// Renderizar el menú en el canvas
-context.draw(menuContainer);
-
-// Crear una textura a partir del canvas
-const texture = new THREE.CanvasTexture(canvas);
-
-// Crear un plano y aplicar la textura
+// Crear un plano para el menú
 const planeGeometry = new THREE.PlaneGeometry(2, 1);
-const planeMaterial = new THREE.MeshBasicMaterial({ map: texture });
+const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Color de fondo del menú
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-// Posicionar el plano (ajusta estos valores según tus necesidades)
 plane.position.set(0, -1, -5);
-
-// Escalar el plano para que coincida con el tamaño de la textura
-plane.scale.set(0.5, 0.5, 1);
-// Posicionar el plano en la escena
 scene.add(plane);
 
-// Crear un raycaster
+// Crear el menú HTML y renderizarlo en un canvas
+const menuContainer = document.createElement('div');
+menuContainer.innerHTML = /* Aquí va el HTML de tu menú */ `<ul>
+  <li>Opción 1</li>
+  <li>Opción 2</li>
+  <li>Opción 3</li>
+</ul>`;
+document.body.appendChild(menuContainer);
+
+const canvas = document.createElement('canvas');
+const context = canvas.getContext('2d');
+canvas.width = menuContainer.offsetWidth;
+canvas.height = menuContainer.offsetHeight;
+context.draw(menuContainer);
+
+const texture = new THREE.CanvasTexture(canvas);
+planeMaterial.map = texture;
+
+// Crear un raycaster para detectar clicks
 const raycaster = new THREE.Raycaster();
 
-// Función para detectar clics
+// Función para detectar clicks y ejecutar acciones
 function onMouseClick(event) {
-    // ... (código para detectar la intersección con el plano y ejecutar acciones)
+  // Convertir las coordenadas del mouse a coordenadas 3D
+  const mouse = new THREE.Vector2();
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+
+  // Comprobar si el rayo intersecta con el plano
+  const intersects = raycaster.intersectObjects([plane]);
+
+  if (intersects.length > 0) {
+    // Obtener la posición del clic en el plano
+    const intersectPoint = intersects[0].point;
+
+    // Aquí puedes agregar la lógica para determinar qué opción del menú se ha seleccionado
+    // Basándote en la posición de intersectPoint
+
+    // Ejemplo:
+    console.log('Has hecho clic en la opción:', obtenerOpcionSeleccionada(intersectPoint));
+  }
 }
 
-window.addEventListener('click', onMouseClick, false);
+window.addEventListener('click', onMouseClick);
 
-// ... (resto de tu código Three.js)
+// Función para animar el menú
+function animateMenu() {
+  gsap.to(plane.scale, {
+    x: 2,
+    duration: 0.5,
+    ease: "power2.out"
+  });
+}
 
 // Obtener el botón del menú
 const menuButton = document.getElementById('menu-button');
 
 // Agregar un evento de clic al botón
-menuButton.addEventListener('click', () => {
-    // Aquí puedes agregar la lógica para desplegar el menú
-    // Por ejemplo, puedes animar el plano para que se expanda
-    // o mostrar/ocultar elementos del menú
-});
-// ... (resto de tu código Three.js)
-menuButton.addEventListener('click', () => {
-    gsap.to(plane.scale, {
-        x: 2, // Escala en el eje X a 2
-        duration: 0.5, // Duración de la animación en segundos
-        ease: "power2.out" // Tipo de easing para la animación
-    });
-});
-gsap.to(plane.scale, {
-    x: 2,
-    duration: 0.5,
-    ease: "power2.out"
-});
+menuButton.addEventListener('click', animateMenu);
+
+// Función de renderizado
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+animate();
