@@ -1,9 +1,9 @@
 // Archivo: characterCreator.js
 
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
-import { database } from "./js/firebase-config.js";
+import { database } from "./firebase-config.js";
 import { ref, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-import { loadThreeScene } from "./js/three-scene.js";
+import { loadThreeScene } from "./three-scene.js";
 
 // Preguntas del cuestionario (7 para cada color)
 const questions = [
