@@ -1,80 +1,102 @@
-// Importa las funciones necesarias
+// Archivo: characterCreator.js
+
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 import { database } from "./firebase-config.js";
-import {
-  ref,
-  update
-} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+import { ref, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 import { loadThreeScene } from "./three-scene.js";
 
-// Mostrar el cuestionario
-export function loadCharacterCreator(userId) {
-  // Crear la interfaz del cuestionario
-  document.body.innerHTML = `
-    <h1>Creación de Personaje</h1>
-    <form id="character-form">
-      ${generateQuestions()}
-      <button type="submit">Finalizar</button>
-    </form>
-  `;
+// Preguntas del cuestionario
+const questions = [
+  "¿Qué tan fuerte te consideras? (0-1)",
+  "¿Qué tan ágil eres? (0-1)",
+  "¿Qué tan inteligente te consideras? (0-1)"
+];
 
-  // Manejar el envío del formulario
-  document.getElementById("character-form").addEventListener("submit", (event) => {
-    event.preventDefault();
+// Elementos del DOM
+const container = document.createElement("div");
+container.id = "questionnaire";
+container.style.position = "absolute";
+container.style.top = "50%";
+container.style.left = "50%";
+container.style.transform = "translate(-50%, -50%)";
+container.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+container.style.color = "white";
+container.style.padding = "20px";
+container.style.borderRadius = "10px";
+container.style.fontFamily = "Arial, sans-serif";
+container.style.textAlign = "center";
+document.body.appendChild(container);
 
-    // Obtener las respuestas del cuestionario
-    const formData = new FormData(event.target);
-    const answers = Array.from(formData.values()).map(Number);
+const submitButton = document.createElement("button");
+submitButton.innerText = "Finalizar";
+submitButton.style.padding = "10px 20px";
+submitButton.style.marginTop = "20px";
+submitButton.style.backgroundColor = "#4CAF50";
+submitButton.style.color = "white";
+submitButton.style.border = "none";
+submitButton.style.cursor = "pointer";
 
-    // Calcular las estadísticas base (Fuerza, Destreza, Inteligencia)
-    const { strength, dexterity, intelligence } = calculateBaseStats(answers);
+let responses = [];
 
-    // Calcular el color del personaje
-    const color = calculateColor(strength, dexterity, intelligence);
-
-    // Guardar los datos del personaje en la base de datos
-    update(ref(database, `players/${userId}`), {
-      characterCreated: true,
-      stats: { strength, dexterity, intelligence },
-      color
-    })
-      .then(() => {
-        console.log("Personaje creado con éxito.");
-        // Cargar la escena principal
-        loadThreeScene({ x: 0, y: 0, z: 0 });
-      })
-      .catch((error) => {
-        console.error("Error al guardar el personaje:", error.message);
-      });
-  });
-}
-
-// Generar las preguntas del cuestionario
-function generateQuestions() {
-  let questions = "";
-  for (let i = 1; i <= 21; i++) {
-    questions += `
-      <label for="question-${i}">Pregunta ${i}:</label>
-      <input type="number" id="question-${i}" name="question-${i}" min="1" max="5" required>
-      <br>
+function renderQuestions() {
+  container.innerHTML = "<h1>Creación de Personaje</h1>";
+  questions.forEach((question, index) => {
+    const questionDiv = document.createElement("div");
+    questionDiv.innerHTML = `
+      <label>${question}</label>
+      <input type="number" id="question-${index}" step="0.01" min="0" max="1" required>
     `;
-  }
-  return questions;
+    container.appendChild(questionDiv);
+  });
+  container.appendChild(submitButton);
 }
 
-// Calcular estadísticas base
-function calculateBaseStats(answers) {
-  const total = answers.reduce((sum, value) => sum + value, 0);
-  const strength = answers.slice(0, 7).reduce((sum, value) => sum + value, 0) / total;
-  const dexterity = answers.slice(7, 14).reduce((sum, value) => sum + value, 0) / total;
-  const intelligence = answers.slice(14).reduce((sum, value) => sum + value, 0) / total;
+submitButton.addEventListener("click", async () => {
+  responses = questions.map((_, index) => {
+    const value = parseFloat(document.getElementById(`question-${index}`).value) || 0;
+    return Math.min(Math.max(value, 0), 1); // Asegurarse de que esté entre 0 y 1
+  });
 
-  return { strength, dexterity, intelligence };
-}
+  const [strength, dexterity, intelligence] = responses;
 
-// Calcular el color del personaje
-function calculateColor(strength, dexterity, intelligence) {
+  // Calcular color base
   const r = Math.round(strength * 255);
   const g = Math.round(dexterity * 255);
   const b = Math.round(intelligence * 255);
-  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
-}
+  const color = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+
+  // Derivar estadísticas secundarias
+  const stats = {
+    ATK: (r / 255) * 100,
+    SPD: ((r + g) / 510) * 100,
+    MAG: (b / 255) * 100,
+    DEF: ((r * 0.6 + g * 0.4) / 255) * 100,
+    ACC: ((g + b) / 510) * 100,
+    VIT: ((r + g + b) / 765) * 100
+  };
+
+  // Obtener usuario actual
+  const auth = getAuth();
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      const userRef = ref(database, `players/${user.uid}`);
+
+      // Guardar datos en Firebase
+      await update(userRef, {
+        characterCreated: true,
+        stats: { strength, dexterity, intelligence },
+        color,
+        derivedStats: stats
+      });
+
+      // Cargar escena principal
+      container.remove();
+      loadThreeScene({ x: 0, y: 0, z: 0, color, stats });
+    } else {
+      alert("No se encontró un usuario autenticado.");
+    }
+  });
+});
+
+// Renderizar el cuestionario al cargar la página
+renderQuestions();
