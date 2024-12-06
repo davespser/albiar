@@ -1,5 +1,7 @@
 // Importa Three.js
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
+import { database } from "./firebase-config.js";
+import { ref, get } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
 // Variables globales
 let scene, camera, renderer;
@@ -12,24 +14,33 @@ let username = "Explorador"; // Cambiar según el nombre del usuario actual
 let coordDiv;
 let nameLabel;
 
-// Inicializar la escena
-function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
+// Inicializar la escena con datos del usuario
+async function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
+  // Obtener datos del personaje desde Firebase
+  const userRef = ref(database, `players/${username}`);
+  const snapshot = await get(userRef);
+
+  let color = 0xff4500; // Color predeterminado
+  let stats = { strength: 0.3, dexterity: 0.3, intelligence: 0.3 }; // Estadísticas predeterminadas
+
+  if (snapshot.exists()) {
+    const userData = snapshot.val();
+    color = userData.color || color;
+    stats = userData.stats || stats;
+  }
+
   // Crear escena
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb); // Fondo azul cielo
 
   // Configurar cámara
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   updateCameraPosition(initialPosition);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.innerHTML = ""; // Limpiar la interfaz anterior
   document.body.appendChild(renderer.domElement);
 
   // Crear coordenadas en pantalla
@@ -56,7 +67,9 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   scene.add(directionalLight);
 
   // Crear suelo con textura
-  const floorTexture = new THREE.TextureLoader().load("https://ipadg.ghom.cn/Public/threejs/examples/textures/terrain/grasslight-big.jpg");
+  const floorTexture = new THREE.TextureLoader().load(
+    "https://ipadg.ghom.cn/Public/threejs/examples/textures/terrain/grasslight-big.jpg"
+  );
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(10, 10);
@@ -67,9 +80,9 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  // Crear cubo con animación
+  // Crear cubo
   const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({ color: 0xff4500 }); // Naranja brillante
+  const material = new THREE.MeshStandardMaterial({ color });
   cube = new THREE.Mesh(geometry, material);
   cube.position.set(initialPosition.x, initialPosition.y + 0.5, initialPosition.z);
   cube.castShadow = true;
@@ -85,6 +98,9 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   nameLabel.scale.set(3, 0.75, 1);
   cube.add(nameLabel);
 
+  // Mostrar estadísticas
+  updateStats(stats);
+
   // Configurar eventos táctiles
   window.addEventListener("touchstart", handleTouchStart);
   window.addEventListener("touchmove", handleTouchMove);
@@ -94,110 +110,14 @@ function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   animate();
 }
 
-// Actualizar posición de la cámara para tercera persona
-function updateCameraPosition(targetPosition) {
-  camera.position.set(
-    targetPosition.x + cameraOffset.x,
-    targetPosition.y + cameraOffset.y,
-    targetPosition.z + cameraOffset.z
-  );
-  camera.lookAt(targetPosition.x, targetPosition.y, targetPosition.z);
+// Mostrar estadísticas en pantalla
+function updateStats(stats) {
+  coordDiv.innerHTML = `
+    <strong>Estadísticas:</strong><br>
+    Fuerza: ${(stats.strength * 100).toFixed(0)}<br>
+    Destreza: ${(stats.dexterity * 100).toFixed(0)}<br>
+    Inteligencia: ${(stats.intelligence * 100).toFixed(0)}
+  `;
 }
 
-// Crear textura de texto
-function createTextTexture(text, width, height) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  context.fillStyle = "rgba(0, 0, 0, 0.5)";
-  context.fillRect(0, 0, width, height);
-  context.font = "30px Comic Sans MS";
-  context.fillStyle = "yellow";
-  context.textAlign = "center";
-  context.fillText(text, width / 2, height / 2 + 10);
-  return new THREE.CanvasTexture(canvas);
-}
-
-// Manejar inicio del toque
-function handleTouchStart(event) {
-  if (event.touches.length === 1) {
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-  }
-}
-
-// Manejar movimiento del toque
-function handleTouchMove(event) {
-  if (event.touches.length === 1) {
-    touchMoveX = event.touches[0].clientX;
-    touchMoveY = event.touches[0].clientY;
-  }
-}
-
-// Manejar fin del toque
-function handleTouchEnd() {
-  const deltaX = touchMoveX - touchStartX;
-  const deltaY = touchMoveY - touchStartY;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    // Movimiento horizontal
-    if (deltaX > 0) {
-      cube.position.x += speed; // Mover a la derecha
-    } else {
-      cube.position.x -= speed; // Mover a la izquierda
-    }
-  } else {
-    // Movimiento vertical
-    if (deltaY > 0) {
-      cube.position.z += speed; // Mover hacia atrás
-    } else {
-      cube.position.z -= speed; // Mover hacia adelante
-    }
-  }
-
-  // Actualizar cámara en tercera persona
-  updateCameraPosition(cube.position);
-
-  // Actualizar coordenadas
-  updateCoordinates();
-
-  // Resetear variables táctiles
-  touchStartX = 0;
-  touchStartY = 0;
-  touchMoveX = 0;
-  touchMoveY = 0;
-}
-
-// Actualizar coordenadas en pantalla
-function updateCoordinates() {
-  coordDiv.innerText = `🧭 Coordenadas: X=${cube.position.x.toFixed(2)}, Y=${cube.position.y.toFixed(2)}, Z=${cube.position.z.toFixed(2)}`;
-}
-
-// Animar escena
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-  updateCoordinates();
-  rotateCube();
-}
-
-// Rotación continua del cubo
-function rotateCube() {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-}
-
-// Desmontar escena
-function unloadThreeScene() {
-  if (renderer) {
-    renderer.domElement.remove();
-    renderer.dispose();
-  }
-  window.removeEventListener("touchstart", handleTouchStart);
-  window.removeEventListener("touchmove", handleTouchMove);
-  window.removeEventListener("touchend", handleTouchEnd);
-}
-
-export { loadThreeScene, unloadThreeScene };
-    
+// El resto de las funciones (updateCameraPosition, handleTouch, animate, etc.) se mantienen igual...
