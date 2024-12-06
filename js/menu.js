@@ -1,5 +1,5 @@
 // Importar Three.js y GSAP
-import * as THREE from 'three';
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
 import { gsap } from 'gsap';
 
 // Crear la escena, cámara y renderizador
