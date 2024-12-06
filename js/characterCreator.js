@@ -5,11 +5,31 @@ import { database } from "./firebase-config.js";
 import { ref, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 import { loadThreeScene } from "./three-scene.js";
 
-// Preguntas del cuestionario
+// Preguntas del cuestionario (7 para cada color)
 const questions = [
-  "¿Qué tan incómodo te sientes frente a situaciones de peligro físico? (0-5)",
-  "¿Temes al conflicto o a las confrontaciones? (0-5)",
-  "¿Te sientes ansioso/a en situaciones de estrés intenso? (0-5)"
+  "¿Qué tan fuerte te consideras físicamente? (1-5)",
+  "¿Qué tan decidido eres al enfrentar desafíos? (1-5)",
+  "¿Cómo evaluarías tu resistencia física? (1-5)",
+  "¿Qué tan valiente te sientes en situaciones de riesgo? (1-5)",
+  "¿Qué tan rápido te recuperas de un esfuerzo físico? (1-5)",
+  "¿Qué tan constante eres al trabajar en tus metas? (1-5)",
+  "¿Qué tan hábil eres en tareas que requieren fuerza? (1-5)",
+
+  "¿Qué tan rápido eres en tus movimientos? (1-5)",
+  "¿Qué tan coordinado te consideras? (1-5)",
+  "¿Qué tan ágil eres en actividades físicas? (1-5)",
+  "¿Qué tan preciso eres al realizar tareas? (1-5)",
+  "¿Qué tan equilibrado te sientes físicamente? (1-5)",
+  "¿Qué tan reactivo eres ante estímulos? (1-5)",
+  "¿Qué tan eficiente eres en actividades físicas de corta duración? (1-5)",
+
+  "¿Qué tan lógico eres al resolver problemas? (1-5)",
+  "¿Qué tan creativo eres en tus ideas? (1-5)",
+  "¿Qué tan hábil eres para planificar estrategias? (1-5)",
+  "¿Qué tan bien comprendes conceptos abstractos? (1-5)",
+  "¿Qué tan curioso eres al aprender cosas nuevas? (1-5)",
+  "¿Qué tan imaginativo eres en tu forma de pensar? (1-5)",
+  "¿Qué tan analítico eres en situaciones complejas? (1-5)"
 ];
 
 // Elementos del DOM
@@ -44,7 +64,7 @@ function renderQuestions() {
     const questionDiv = document.createElement("div");
     questionDiv.innerHTML = `
       <label>${question}</label>
-      <input type="number" id="question-${index}" step="0.01" min="0" max="5" required>
+      <input type="number" id="question-${index}" step="1" min="1" max="5" required>
     `;
     container.appendChild(questionDiv);
   });
@@ -81,13 +101,13 @@ submitButton.addEventListener("click", async (event) => {
   event.preventDefault();
 
   const answers = questions.map((_, index) => {
-    const value = parseInt(document.getElementById(`question-${index}`).value, 10) || 0;
-    return Math.min(Math.max(value, 0), 5);
+    const value = parseInt(document.getElementById(`question-${index}`).value, 10) || 1;
+    return Math.min(Math.max(value, 1), 5);
   });
 
-  const red = Math.min(255, answers.slice(0, 1).reduce((acc, val) => acc + val * 50, 0));
-  const green = Math.min(255, answers.slice(1, 2).reduce((acc, val) => acc + val * 50, 0));
-  const blue = Math.min(255, answers.slice(2).reduce((acc, val) => acc + val * 50, 0));
+  const red = Math.min(255, answers.slice(0, 7).reduce((acc, val) => acc + val * 10, 0));
+  const green = Math.min(255, answers.slice(7, 14).reduce((acc, val) => acc + val * 10, 0));
+  const blue = Math.min(255, answers.slice(14).reduce((acc, val) => acc + val * 10, 0));
 
   const colorHex = `#${red.toString(16).padStart(2, "0")}${green.toString(16).padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
   const derivedStats = calculateCharacterData(red, green, blue);
@@ -121,4 +141,4 @@ renderQuestions();
 export function loadCharacterCreator(userId) {
   console.log("Cargando creador de personaje para usuario:", userId);
   renderQuestions();
-                              }
+}
