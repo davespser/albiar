@@ -100,3 +100,6 @@ submitButton.addEventListener("click", async () => {
 
 // Renderizar el cuestionario al cargar la página
 renderQuestions();
+export function loadCharacterCreator(userId) {
+    // Código de la función
+}
