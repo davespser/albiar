@@ -36,12 +36,13 @@ const questions = [
 const container = document.createElement("div");
 container.id = "questionnaire";
 container.style.position = "absolute";
-container.style.top = "60%";
-container.style.left = "90%";
+container.style.top = "70%";
+container.style.left = "70%";
+container.dtyle.fontSize: 15;
 container.style.transform = "translate(-50%, -50%)";
 container.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-container.style.color = "green";
-container.style.padding = "30px";
+container.style.color = "White";
+container.style.padding = "40px";
 container.style.borderRadius = "10px";
 container.style.fontFamily = "Arial, sans-serif";
 container.style.textAlign = "left";
