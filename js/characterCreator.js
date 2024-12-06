@@ -40,6 +40,7 @@ container.style.top = "60%";
 container.style.left = "90%";
 container.style.fontsize = "15";
 container.style.transform = "translate(-20%, -20%)";
+container.style.display = "flex";
 container.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
 comtainer.style.alignItems = "flex-start";
 container.style.color = "White";
