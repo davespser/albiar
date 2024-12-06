@@ -7,9 +7,9 @@ import { loadThreeScene } from "./three-scene.js";
 
 // Preguntas del cuestionario
 const questions = [
-  "¿Qué tan fuerte te consideras? (0-1)",
-  "¿Qué tan ágil eres? (0-1)",
-  "¿Qué tan inteligente te consideras? (0-1)"
+  "¿Qué tan incómodo te sientes frente a situaciones de peligro físico? (0-5)",
+  "¿Temes al conflicto o a las confrontaciones? (0-5)",
+  "¿Te sientes ansioso/a en situaciones de estrés intenso? (0-5)"
 ];
 
 // Elementos del DOM
