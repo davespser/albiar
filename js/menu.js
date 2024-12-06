@@ -32,10 +32,11 @@ menuColors.forEach((color, index) => {
 
 // Crear un plano de fondo
 const planeGeometry = new THREE.PlaneGeometry(3, 10);
-planeGeometry.rotation.z = 15;
+
 const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x222222 });
 const background = new THREE.Mesh(planeGeometry, planeMaterial);
-background.position.z = -0.2; // Colocar detrás del menú
+background.position.z = -0.2;
+background.rotation.y = 15;// Colocar detrás del menú
 scene.add(background);
 
 // Raycaster para detección de interacciones
