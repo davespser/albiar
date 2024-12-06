@@ -6,36 +6,19 @@ import { ref, get } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-dat
 // Variables globales
 let scene, camera, renderer;
 let cube, floor;
-let touchStartX = 0, touchStartY = 0;
-let touchMoveX = 0, touchMoveY = 0;
 let speed = 0.1;
 let cameraOffset = { x: 0, y: 5, z: 10 };
-let username = "Explorador"; // Cambiar según el nombre del usuario actual
-let coordDiv;
-let nameLabel;
 
-// Inicializar la escena con datos del usuario
-async function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
-  // Obtener datos del personaje desde Firebase
-  const userRef = ref(database, `players/${username}`);
-  const snapshot = await get(userRef);
-
-  let color = 0xff4500; // Color predeterminado
-  let stats = { strength: 0.3, dexterity: 0.3, intelligence: 0.3 }; // Estadísticas predeterminadas
-
-  if (snapshot.exists()) {
-    const userData = snapshot.val();
-    color = userData.color || color;
-    stats = userData.stats || stats;
-  }
-
+// Cargar la escena principal
+export function loadThreeScene(position) {
   // Crear escena
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb); // Fondo azul cielo
+  scene.background = new THREE.Color(0x87ceeb);
 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  updateCameraPosition(initialPosition);
+  camera.position.set(position.x + cameraOffset.x, position.y + cameraOffset.y, position.z + cameraOffset.z);
+  camera.lookAt(position.x, position.y, position.z);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -43,36 +26,21 @@ async function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
   document.body.innerHTML = ""; // Limpiar la interfaz anterior
   document.body.appendChild(renderer.domElement);
 
-  // Crear coordenadas en pantalla
-  coordDiv = document.createElement("div");
-  coordDiv.style.position = "absolute";
-  coordDiv.style.top = "10px";
-  coordDiv.style.left = "10px";
-  coordDiv.style.color = "white";
-  coordDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  coordDiv.style.padding = "10px";
-  coordDiv.style.borderRadius = "10px";
-  coordDiv.style.fontFamily = "'Comic Sans MS', cursive, sans-serif";
-  coordDiv.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
-  document.body.appendChild(coordDiv);
-
-  // Agregar luz ambiental
+  // Crear luz
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
-  // Agregar luz direccional
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
   directionalLight.position.set(10, 20, 10);
   directionalLight.castShadow = true;
   scene.add(directionalLight);
 
-  // Crear suelo con textura
-  const floorTexture = new THREE.TextureLoader().load(
-    "https://ipadg.ghom.cn/Public/threejs/examples/textures/terrain/grasslight-big.jpg"
-  );
+  // Crear suelo
+  const floorTexture = new THREE.TextureLoader().load("https://threejs.org/examples/textures/grasslight-big.jpg");
   floorTexture.wrapS = THREE.RepeatWrapping;
   floorTexture.wrapT = THREE.RepeatWrapping;
   floorTexture.repeat.set(10, 10);
+
   const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture });
   const floorGeometry = new THREE.PlaneGeometry(50, 50);
   floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -82,45 +50,50 @@ async function loadThreeScene(initialPosition = { x: 0, y: 0, z: 0 }) {
 
   // Crear cubo
   const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({ color });
+  const material = new THREE.MeshStandardMaterial({ color: position.color });
   cube = new THREE.Mesh(geometry, material);
-  cube.position.set(initialPosition.x, initialPosition.y + 0.5, initialPosition.z);
+  cube.position.set(position.x, position.y + 0.5, position.z);
   cube.castShadow = true;
   scene.add(cube);
 
-  // Crear etiqueta de nombre encima del cubo
-  const spriteMaterial = new THREE.SpriteMaterial({
-    map: createTextTexture(username, 256, 64),
-    transparent: true
-  });
-  nameLabel = new THREE.Sprite(spriteMaterial);
-  nameLabel.position.set(0, 1.5, 0); // Posición encima del cubo
-  nameLabel.scale.set(3, 0.75, 1);
-  cube.add(nameLabel);
-
   // Mostrar estadísticas
-  updateStats(stats);
+  const statsDiv = document.createElement("div");
+  statsDiv.style.position = "absolute";
+  statsDiv.style.top = "10px";
+  statsDiv.style.left = "10px";
+  statsDiv.style.color = "white";
+  statsDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  statsDiv.style.padding = "10px";
+  statsDiv.style.borderRadius = "10px";
+  statsDiv.style.fontFamily = "Arial, sans-serif";
+  document.body.appendChild(statsDiv);
 
-  // Configurar eventos táctiles
-  window.addEventListener("touchstart", handleTouchStart);
-  window.addEventListener("touchmove", handleTouchMove);
-  window.addEventListener("touchend", handleTouchEnd);
+  updateStats(statsDiv, position.stats);
 
   // Iniciar animación
   animate();
 }
 
-// Mostrar estadísticas en pantalla
-function updateStats(stats) {
-  coordDiv.innerHTML = `
-    <strong>Estadísticas:</strong><br>
+// Actualizar estadísticas en pantalla
+function updateStats(statsDiv, stats) {
+  statsDiv.innerHTML = `
+    <strong>Estadísticas del Personaje:</strong><br>
     Fuerza: ${(stats.strength * 100).toFixed(0)}<br>
     Destreza: ${(stats.dexterity * 100).toFixed(0)}<br>
     Inteligencia: ${(stats.intelligence * 100).toFixed(0)}
   `;
 }
 
-// El resto de las funciones (updateCameraPosition, handleTouch, animate, etc.) se mantienen igual...
-export function loadThreeScene(position) {
-  // Código de la función
+// Animar la escena
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
+// Desmontar la escena
+export function unloadThreeScene() {
+  if (renderer) {
+    renderer.dispose();
+    document.body.innerHTML = ""; // Limpiar la interfaz
+  }
 }
