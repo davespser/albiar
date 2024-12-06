@@ -1,5 +1,5 @@
 // script.js
-
+import { gsap } from 'gsap';
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
@@ -53,4 +53,11 @@ menuButton.addEventListener('click', () => {
     // Aquí puedes agregar la lógica para desplegar el menú
     // Por ejemplo, puedes animar el plano para que se expanda
     // o mostrar/ocultar elementos del menú
+});
+// ... (resto de tu código Three.js)
+
+gsap.to(plane.scale, {
+    x: 2,
+    duration: 0.5,
+    ease: "power2.out"
 });
