@@ -1,18 +1,35 @@
+// Importa las funciones necesarias
 import { auth, database } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 import { loadCharacterCreator } from "./characterCreator.js";
 import { loadThreeScene } from "./three-scene.js";
 
-// Función para mostrar una pantalla específica
-function showScreen(screenId) {
-  document.querySelectorAll(".screen").forEach((screen) => {
-    screen.classList.remove("active");
-  });
-  document.getElementById(screenId).classList.add("active");
+// Registro de usuario
+function handleRegister() {
+  const email = document.getElementById("register-email").value;
+  const password = document.getElementById("register-password").value;
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log("Usuario registrado:", user);
+
+      // Guardar datos iniciales del usuario en la base de datos
+      const initialData = {
+        level: 1,
+        position: { x: 0, y: 0, z: 0 },
+        characterCreated: false // Flag para verificar si completó el cuestionario
+      };
+      saveUserData(user.uid, initialData);
+    })
+    .catch((error) => {
+      console.error("Error al registrar usuario:", error.message);
+    });
 }
 
 // Inicio de sesión
@@ -22,19 +39,23 @@ function handleLogin() {
 
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      const user = userCredential.user;
-      console.log("Usuario inició sesión:", user);
+      console.log("Usuario inició sesión:", userCredential.user);
 
-      // Verificar si el cuestionario ya fue completado
-      const userRef = ref(database, `players/${user.uid}`);
+      // Lógica para cargar la pantalla correcta
+      const userRef = ref(database, `players/${userCredential.user.uid}`);
       get(userRef).then((snapshot) => {
-        const userData = snapshot.val();
-        if (userData && userData.characterCreated) {
+        if (snapshot.exists() && snapshot.val().characterCreated) {
+          // Si el cuestionario ya fue completado, cargar el juego
           showScreen("game-screen");
-          loadThreeScene({ ...userData.position, color: userData.color, stats: userData.derivedStats });
+          loadThreeScene({
+            ...snapshot.val().position,
+            color: snapshot.val().color,
+            stats: snapshot.val().derivedStats
+          });
         } else {
+          // Si no se completó, cargar el cuestionario
           showScreen("questionnaire-screen");
-          loadCharacterCreator(user.uid);
+          loadCharacterCreator(userCredential.user.uid);
         }
       });
     })
@@ -46,12 +67,20 @@ function handleLogin() {
 // Escuchar el estado de autenticación
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    console.log("Sesión activa con usuario:", user);
     handleLogin();
   } else {
     showScreen("login-screen");
   }
 });
 
-// Exportar función de login para el HTML
+// Mostrar pantallas
+function showScreen(screenId) {
+  document.querySelectorAll(".screen").forEach((screen) => {
+    screen.classList.remove("active");
+  });
+  document.getElementById(screenId).classList.add("active");
+}
+
+// Exportar funciones al ámbito global
 window.handleLogin = handleLogin;
+window.handleRegister = handleRegister;
