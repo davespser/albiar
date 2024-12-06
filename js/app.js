@@ -6,9 +6,15 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
-import { loadCharacterCreator } from "./characterCreator.js";
-import { loadThreeScene } from "./three-scene.js";
+import {
+  ref,
+  get,
+  set
+} 
+  from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 
+import { loadThreeScene, unloadThreeScene } from "./three-scene.js";
+import { loadCharacterCreator } from "./characterCreator.js";
 // Registro de usuario
 function handleRegister() {
   const email = document.getElementById("register-email").value;
