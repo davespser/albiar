@@ -47,7 +47,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
 
   // Crear cubo con color del personaje
   const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({ color });
+  const material = new THREE.MeshPhongMaterial({ color, shininess: 150, reflectivity: 1, specular: 0xffffff});
   cube = new THREE.Mesh(geometry, material);
   cube.position.set(x, y + 0.5, z);
   cube.castShadow = true;
