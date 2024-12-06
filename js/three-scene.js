@@ -121,3 +121,6 @@ function updateStats(stats) {
 }
 
 // El resto de las funciones (updateCameraPosition, handleTouch, animate, etc.) se mantienen igual...
+export function loadThreeScene(position) {
+  // Código de la función
+}
