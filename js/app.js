@@ -4,8 +4,8 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
-import { loadCharacterCreator } from "./js/characterCreator.js";
-import { loadThreeScene } from "./js/three-scene.js";
+import { loadCharacterCreator } from "./characterCreator.js";
+import { loadThreeScene } from "./three-scene.js";
 
 // Función para mostrar una pantalla específica
 function showScreen(screenId) {
