@@ -82,22 +82,16 @@ function loadUserData(userId) {
         const userData = snapshot.val();
         console.log("Datos del usuario cargados:", userData);
 
-        // Validar datos obligatorios
-        if (!userData.stats || !userData.color) {
-          console.error("Faltan estadísticas o color en los datos del usuario.");
-          return;
-        }
-
         // Verificar si ya completó el cuestionario de creación de personaje
         if (!userData.characterCreated) {
-          // Si no lo completó, cargar el creador de personajes
+          console.log("Cargando creador de personaje...");
           loadCharacterCreator(userId);
         } else {
-          // Si ya lo completó, cargar la escena principal
+          console.log("Cargando escena principal...");
           loadThreeScene({
             ...userData.position,
             color: userData.color,
-            stats: userData.stats
+            stats: userData.derivedStats // Usar las estadísticas calculadas previamente
           });
         }
       } else {
