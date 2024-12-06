@@ -52,7 +52,80 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   cube.position.set(x, y + 0.5, z);
   cube.castShadow = true;
   scene.add(cube);
+// Crear el joypad
+function createJoypad() {
+  const joypadBase = document.createElement("div");
+  joypadBase.style.position = "absolute";
+  joypadBase.style.bottom = `${window.innerHeight * 0.1}px`; // 10% desde el borde inferior
+  joypadBase.style.left = `${window.innerWidth * 0.05}px`; // 5% desde el borde izquierdo
+  joypadBase.style.width = `${window.innerWidth * 0.2}px`; // 20% del ancho de la pantalla
+  joypadBase.style.height = joypadBase.style.width; // Mantener proporción cuadrada
+  joypadBase.style.border = "2px solid white";
+  joypadBase.style.borderRadius = "50%";
+  joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
+  joypadBase.style.touchAction = "none"; // Desactivar desplazamiento táctil predeterminado
+  document.body.appendChild(joypadBase);
 
+  const joypadStick = document.createElement("div");
+  joypadStick.style.position = "absolute";
+  joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`; // 40% del tamaño del joypad base
+  joypadStick.style.height = joypadStick.style.width; // Mantener proporción cuadrada
+  joypadStick.style.background = "white";
+  joypadStick.style.borderRadius = "50%";
+  joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`; // Centrar stick
+  joypadBase.appendChild(joypadStick);
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+
+  // Manejar eventos táctiles
+  joypadBase.addEventListener("touchstart", (event) => {
+    isDragging = true;
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+
+  joypadBase.addEventListener("touchmove", (event) => {
+    if (!isDragging) return;
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    // Limitar el movimiento del stick al área del joypad
+    const radius = parseFloat(joypadBase.style.width) / 2;
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), radius);
+    const angle = Math.atan2(deltaY, deltaX);
+    const stickX = Math.cos(angle) * distance;
+    const stickY = Math.sin(angle) * distance;
+
+    joypadStick.style.transform = `translate(${stickX + radius}px, ${stickY + radius}px)`;
+
+    // Actualizar la posición del cubo según el movimiento del joypad
+    cube.position.x += stickX * 0.01; // Ajustar sensibilidad según el tamaño del stick
+    cube.position.z += stickY * 0.01;
+  });
+
+  joypadBase.addEventListener("touchend", () => {
+    isDragging = false;
+    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`; // Resetear posición del stick
+  });
+
+  // Redimensionar joypad si cambia el tamaño de la pantalla
+  window.addEventListener("resize", () => {
+    joypadBase.style.bottom = `${window.innerHeight * 0.1}px`;
+    joypadBase.style.left = `${window.innerWidth * 0.05}px`;
+    joypadBase.style.width = `${window.innerWidth * 0.2}px`;
+    joypadBase.style.height = joypadBase.style.width;
+    joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`;
+    joypadStick.style.height = joypadStick.style.width;
+    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
+  });
+}
+
+// Llamar a createJoypad después de cargar la escena
+createJoypad();
   // Mostrar estadísticas
   const statsDiv = document.createElement("div");
   statsDiv.style.position = "absolute";
