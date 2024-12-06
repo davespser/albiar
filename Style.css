@@ -1,1 +1,21 @@
+#menu-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    transform: rotate(10deg);
+}
 
+#menu-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menu-container li {
+    /* Estilos para cada elemento del menú */
+}
