@@ -7,10 +7,26 @@
   <link rel="stylesheet" href="style.css"
   <style>
    <!-- Contenedor del menú -->
-  <div id="menu-container">
-    <div class="menu-item" data-action="option1">
-      <span>🔧</span> Opción 1
-    </div>
+  menu-item {
+      background-color: #3498db;
+      clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
+      padding: 10px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      color: white;
+    }
+    .menu-content {
+      display: none;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+    }
+    #toggle:checked + .menu-content {
+      display: block;
+    }
+    .hidden-input {
+      display: none;
+    }
     <div class="menu-item" data-action="option2">
       <span>🎵</span> Opción 2
     </div>
@@ -43,6 +59,15 @@
 <body>
   
   <div id="menu-button">Abrir Menú</div>
+   <div id="menu-container">
+    <label for="toggle" class="menu-item" data-action="option1">
+      <span>🔧</span> Opción 1
+    </label>
+    <input type="checkbox" id="toggle" class="hidden-input">
+    <div class="menu-content">
+      <p>Este es el contenido desplegable.</p>
+    </div>
+  </div
 
 
   <script type="module" src="js/app.js"></script>
