@@ -1,5 +1,5 @@
 /* Contenedor principal del menú */
-#menu-container {
+.menu-container {
   position: absolute;
   bottom: 2%;
   left: 2%;
