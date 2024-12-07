@@ -1,20 +1,18 @@
 /* Contenedor principal del menú */
 #menu-container {
- 
-      position: absolute;
-      bottom: 2%;
-      left: 2%;
-      background: rgba(0,0, 0.00);/* Mantener el fondo oscuro */
-      padding: 20px;
-      border-radius: 8px;
-      display: flex;
-      box-sizing: border-box;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 100;
+  position: absolute;
+  bottom: 2%;
+  left: 2%;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 100; /* Siempre por encima */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Estilo de las opciones del menú */
+/* Estilo del botón principal del menú */
 .menu-item {
   display: flex;
   align-items: center;
@@ -26,42 +24,45 @@
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-  transition: background 0.4s, transform 0.2s;
+  transition: background 0.3s, transform 0.2s;
 }
 
-/* Icono dentro de cada opción */
+/* Icono dentro del botón principal */
 .menu-item span {
   margin-right: 10px;
   font-size: 20px;
   transform: rotate(-10deg);
 }
 
-/* Efecto hover */
+/* Efecto hover en el botón principal */
 .menu-item:hover {
-   background: rgba(255, 255, 255, 0.2);
-   transform: translateX(10px);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(10px);
 }
-/* Contenido desplegable */
- .menu-content {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 30%;
-      height: 94%;
-      clip-path: polygon(0% 0%, 100% 0%, 45% 100%, 0% 100%);
-      background: linear-gradient(to bottom right, #808080, #000000 90%);/* Mantener el fondo oscuro */
-      padding: 20px;
-      box-sizing: border-box;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 99; /* Asegurar que está por detrás del menú principal */
-    }
 
+/* Contenido desplegable */
+.menu-content {
+  display: none; /* Ocultar por defecto */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 94%;
+  clip-path: polygon(0% 0%, 100% 0%, 45% 100%, 0% 100%);
+  background: linear-gradient(to bottom right, #808080, #000000 90%);
+  padding: 20px;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 99; /* Asegurar que está por detrás del menú principal */
+}
+
+/* Mostrar contenido desplegable al marcar el checkbox */
 #toggle:checked ~ .menu-content {
   display: flex;
 }
 
+/* Checkbox oculto */
 .hidden-input {
   display: none;
 }
