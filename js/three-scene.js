@@ -146,7 +146,7 @@ function createMenu() {
 // Llamar a la función para generar el menú
 createMenu();
 // Crear joypad
-function createJoypad() {
+function createJoypad(cube) {
   const joypadBase = document.createElement("div");
   joypadBase.style.position = "absolute";
   joypadBase.style.bottom = "10%";
@@ -156,6 +156,7 @@ function createJoypad() {
   joypadBase.style.border = "2px solid white";
   joypadBase.style.borderRadius = "50%";
   joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
+  joypadBase.style.touchAction = "none"; // Evita conflictos con gestos del navegador
   document.body.appendChild(joypadBase);
 
   const joypadStick = document.createElement("div");
@@ -164,12 +165,13 @@ function createJoypad() {
   joypadStick.style.height = joypadStick.style.width;
   joypadStick.style.background = "white";
   joypadStick.style.borderRadius = "50%";
-  joypadStick.style.transform = `translate(30%, 30%)`;
+  joypadStick.style.transform = "translate(30%, 30%)";
   joypadBase.appendChild(joypadStick);
 
   let isDragging = false;
   let startX = 0;
   let startY = 0;
+  const baseRect = joypadBase.getBoundingClientRect();
 
   // Eventos de interacción
   joypadBase.addEventListener("touchstart", (event) => {
@@ -184,12 +186,26 @@ function createJoypad() {
     const touch = event.touches[0];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
-    cube.position.x += deltaX * 0.005; // Ajustar sensibilidad
-    cube.position.z += deltaY * 0.005;
+
+    // Limitar el movimiento del stick dentro del círculo
+    const maxRadius = baseRect.width / 2;
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxRadius);
+
+    const angle = Math.atan2(deltaY, deltaX);
+    const stickX = Math.cos(angle) * distance;
+    const stickY = Math.sin(angle) * distance;
+
+    joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 50%), calc(50% + ${stickY}px - 50%))`;
+
+    // Mover el objeto (cube)
+    cube.position.x += (stickX / maxRadius) * 0.05; // Ajustar sensibilidad
+    cube.position.z += (stickY / maxRadius) * 0.05;
   });
 
   joypadBase.addEventListener("touchend", () => {
     isDragging = false;
+    // Restablecer la posición del stick al centro
+    joypadStick.style.transform = "translate(30%, 30%)";
   });
 }
 
