@@ -3,10 +3,7 @@
   position: absolute;
   bottom: 2%;
   left: 2;
-  -webkit-transform: skew(-30deg);
-    -moz-transform: skew(-30deg);
-    -ms-transform: skew(-30deg);
-    transform: skew(-30deg);
+clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
   background: rgba(0, 0, 0, 0.8);
   padding: 10px;
   border-radius: 8px;
