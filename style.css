@@ -3,7 +3,7 @@
   position: absolute;
   bottom: 2%;
   left: 2%; /* Corrige la propiedad left */
-  clip-path: polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%);
+  clip-path: polygon(0% 0%, 100% 0%, 35% 100%, 0% 100%);
   background: rgba(0, 0, 0, 0.8);
   padding: 10px;
   border-radius: 8px;
