@@ -39,4 +39,5 @@
 .menu-item:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateX(10px);
+  transform: rotate(-10deg)
 }
