@@ -4,7 +4,7 @@
   top: 50%;
   left: 0;
   transform: translateY(-50%), rotate(-10deg);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(10, 10, 10, 0.8);
   padding: 10px;
   border-radius: 8px;
   z-index: 100; /* Siempre por encima */
