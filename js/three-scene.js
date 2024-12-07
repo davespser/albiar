@@ -105,25 +105,36 @@ function createMenu() {
 
   // Crear el contenedor del menú
   const menuContainer = document.createElement("div");
-  menuContainer.id = "menu-container";
+  menuContainer.classList.add("menu-container");
   menuContainer.innerHTML = `
-    <div class="menu-item" data-action="option1">
-      <span>🔸</span>
-    </div>
-    <div class="menu-item" data-action="option2">
-      <span>🔸</span>
-    </div>
-    <div class="menu-item" data-action="option3">
-      <span>🔸</span>
-    </div>
-    <div class="menu-item" data-action="option4">
-      <span>🔸</span>
+    <!-- Input checkbox oculto para manejar el estado -->
+    <input type="checkbox" id="toggle" class="hidden-input">
+    
+    <!-- Botón principal del menú -->
+    <label for="toggle" class="menu-item">
+      <span>🔸</span> Menú
+    </label>
+
+    <!-- Contenido desplegable -->
+    <div class="menu-content">
+      <div class="menu-item" data-action="option1">
+        <span>🔸</span> Opción 1
+      </div>
+      <div class="menu-item" data-action="option2">
+        <span>🔸</span> Opción 2
+      </div>
+      <div class="menu-item" data-action="option3">
+        <span>🔸</span> Opción 3
+      </div>
+      <div class="menu-item" data-action="option4">
+        <span>🔸</span> Opción 4
+      </div>
     </div>
   `;
   document.body.appendChild(menuContainer);
 
   // Manejar clics en las opciones del menú
-  document.querySelectorAll(".menu-item").forEach((item) => {
+  document.querySelectorAll(".menu-content .menu-item").forEach((item) => {
     item.addEventListener("click", () => {
       const action = item.getAttribute("data-action");
       console.log(`Has seleccionado: ${action}`);
@@ -132,6 +143,8 @@ function createMenu() {
   });
 }
 
+// Llamar a la función para generar el menú
+createMenu();
 // Crear joypad
 function createJoypad() {
   const joypadBase = document.createElement("div");
