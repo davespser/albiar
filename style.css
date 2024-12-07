@@ -4,9 +4,7 @@
       position: absolute;
       bottom: 2%;
       left: 2%;
-   
-     
-      background: linear-gradient(to bottom right, #808080, #000000 90%);/* Mantener el fondo oscuro */
+      background: rgba(0,0, 0.00);/* Mantener el fondo oscuro */
       padding: 20px;
       border-radius: 8px;
       display: flex;
