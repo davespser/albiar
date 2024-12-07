@@ -108,16 +108,16 @@ function createMenu() {
   menuContainer.id = "menu-container";
   menuContainer.innerHTML = `
     <div class="menu-item" data-action="option1">
-      <span>🔧</span> Opción 1
+      <span>🔸</span>
     </div>
     <div class="menu-item" data-action="option2">
-      <span>🎵</span> Opción 2
+      <span>🔸</span>
     </div>
     <div class="menu-item" data-action="option3">
-      <span>📷</span> Opción 3
+      <span>🔸</span>
     </div>
     <div class="menu-item" data-action="option4">
-      <span>⚙️</span> Opción 4
+      <span>🔸</span>
     </div>
   `;
   document.body.appendChild(menuContainer);
