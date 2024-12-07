@@ -35,7 +35,7 @@ const questions = [
 // Elementos del DOM
 const container = document.createElement("div");
 container.id = "questionnaire";
-container.style.width = "15px";
+container.style.width = "50px";
 container.style.position = "absolute";
 container.style.top = "1%";
 container.style.right = "20px"; // Cambia 'left' a 'right' para posicionarlo a la derecha
