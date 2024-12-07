@@ -100,7 +100,7 @@ function createMenu() {
   // Cargar estilos del menú
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "./js/menu.css"; // Ruta del archivo CSS del menú
+  link.href = "./js/style.css"; // Ruta del archivo CSS del menú
   document.head.appendChild(link);
 
   // Crear el contenedor del menú
@@ -124,11 +124,59 @@ function createMenu() {
 
   // Manejar clics en las opciones del menú
   document.querySelectorAll(".menu-item").forEach((item) => {
-    item.addEventListener("click", (event) => {
+    item.addEventListener("click", () => {
       const action = item.getAttribute("data-action");
       console.log(`Has seleccionado: ${action}`);
       // Añade lógica personalizada aquí
     });
+  });
+}
+
+// Crear joypad
+function createJoypad() {
+  const joypadBase = document.createElement("div");
+  joypadBase.style.position = "absolute";
+  joypadBase.style.bottom = "10%";
+  joypadBase.style.left = "5%";
+  joypadBase.style.width = "15%";
+  joypadBase.style.height = joypadBase.style.width;
+  joypadBase.style.border = "2px solid white";
+  joypadBase.style.borderRadius = "50%";
+  joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
+  document.body.appendChild(joypadBase);
+
+  const joypadStick = document.createElement("div");
+  joypadStick.style.position = "absolute";
+  joypadStick.style.width = "40%";
+  joypadStick.style.height = joypadStick.style.width;
+  joypadStick.style.background = "white";
+  joypadStick.style.borderRadius = "50%";
+  joypadStick.style.transform = `translate(30%, 30%)`;
+  joypadBase.appendChild(joypadStick);
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+
+  // Eventos de interacción
+  joypadBase.addEventListener("touchstart", (event) => {
+    isDragging = true;
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+
+  joypadBase.addEventListener("touchmove", (event) => {
+    if (!isDragging) return;
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    cube.position.x += deltaX * 0.005; // Ajustar sensibilidad
+    cube.position.z += deltaY * 0.005;
+  });
+
+  joypadBase.addEventListener("touchend", () => {
+    isDragging = false;
   });
 }
 
