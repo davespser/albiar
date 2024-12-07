@@ -37,7 +37,7 @@ const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x222222 });
 const background = new THREE.Mesh(planeGeometry, planeMaterial);
 background.position.z = -0.2;
 background.position.x = -3;
-background.rotation.z = 8;// Colocar detrás del menú
+background.rotation.z = 0.2;// Colocar detrás del menú
 scene.add(background);
 
 // Raycaster para detección de interacciones
