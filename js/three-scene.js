@@ -142,7 +142,7 @@ createJoypad();
   document.body.appendChild(statsDiv);
 
   // Configurar la velocidad basada en la estadística "speed"
-  speed = stats.speed ? stats.speed / 100 : 0.1;
+  speed = stats.speed ? stats.speed / 100 : 0.5;
 
   // Configurar eventos de teclado para mover el cubo
   window.addEventListener("keydown", handleKeyDown);
