@@ -100,7 +100,7 @@ function createMenu() {
   // Cargar estilos del menú
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = ".style.css"; // Ruta del archivo CSS del menú
+  link.href = "style.css"; // Ruta del archivo CSS del menú
   document.head.appendChild(link);
 
   // Crear el contenedor del menú
