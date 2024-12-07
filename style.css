@@ -1,6 +1,6 @@
 /* Contenedor principal del menú */
 #menu-container {
-    
+    display: none;
       position: absolute;
       bottom: 2%;
       left: 2%;
