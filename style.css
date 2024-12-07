@@ -1,15 +1,18 @@
 /* Contenedor principal del menú */
 #menu-container {
-  position: absolute;
-  bottom: 2%;
-  left: 2%;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 100; /* Siempre por encima */
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+     display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 30%;
+      height: 94%;
+      clip-path: polygon(0% 0%, 100% 0%, 45% 100%, 0% 100%);
+      background: linear-gradient(to bottom right, #808080, #000000 90%);/* Mantener el fondo oscuro */
+      padding: 20px;
+      box-sizing: border-box;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 99;
 }
 
 /* Estilo de las opciones del menú */
