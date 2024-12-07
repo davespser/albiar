@@ -1,70 +1,84 @@
 // Importar Three.js
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
 
-// Crear la escena, cámara y renderizador
+// Crear la escena principal
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Crear un grupo para los elementos del menú
-const menuGroup = new THREE.Group();
-scene.add(menuGroup);
+// Posicionar la cámara
+camera.position.z = 5;
 
-// Crear geometrías para cada ícono del menú
-const createMenuOption = (color, positionY) => {
-  const geometry = new THREE.BoxGeometry(0.3, 0.3, 0.1);
-  const material = new THREE.MeshBasicMaterial({ color });
-  const box = new THREE.Mesh(geometry, material);
-  box.position.y = positionY;
-  return box;
-};
+// Crear un objeto 3D de ejemplo en la escena
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
-// Crear opciones del menú
-const menuColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
-menuColors.forEach((color, index) => {
-  const option = createMenuOption(color, index * -0.5); // Separar cada opción
-  menuGroup.add(option);
-});
-
-// Crear un plano de fondo
-const planeGeometry = new THREE.PlaneGeometry(3, 10);
-
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 0x222222 });
-const background = new THREE.Mesh(planeGeometry, planeMaterial);
-background.position.z = -0.2;
-background.position.x = -3;
-background.rotation.z = 0.2;// Colocar detrás del menú
-scene.add(background);
-
-// Raycaster para detección de interacciones
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-function onMouseMove(event) {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(menuGroup.children);
-
-  menuGroup.children.forEach((child) => {
-    child.material.color.set(0xffffff); // Resetear color
-  });
-
-  if (intersects.length > 0) {
-    intersects[0].object.material.color.set(0x00ffff); // Cambiar color al pasar el ratón
-  }
-}
-
-window.addEventListener("mousemove", onMouseMove);
-
-// Función de renderizado
+// Animación básica de rotación del objeto
 function animate() {
   requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
   renderer.render(scene, camera);
 }
 animate();
+
+// Crear el menú HTML superpuesto
+const menuContainer = document.createElement('div');
+menuContainer.id = "menu-container";
+menuContainer.innerHTML = `
+  <ul id="menu">
+    <li class="menu-item" data-action="option1">🔧 Opción 1</li>
+    <li class="menu-item" data-action="option2">🎵 Opción 2</li>
+    <li class="menu-item" data-action="option3">📷 Opción 3</li>
+    <li class="menu-item" data-action="option4">⚙️ Opción 4</li>
+  </ul>
+`;
+document.body.appendChild(menuContainer);
+
+// Estilos CSS del menú (superposición)
+const styles = document.createElement('style');
+styles.innerHTML = `
+  #menu-container {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 10; /* Siempre por encima */
+  }
+
+  #menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu-item {
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .menu-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(10px);
+  }
+`;
+document.head.appendChild(styles);
+
+// Manejar eventos de clic en las opciones del menú
+document.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', (event) => {
+    const action = event.target.getAttribute('data-action');
+    console.log(`Has seleccionado: ${action}`);
+    // Aquí puedes añadir lógica personalizada según la opción seleccionada
+  });
+});
