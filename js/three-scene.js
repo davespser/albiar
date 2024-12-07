@@ -146,7 +146,7 @@ function createMenu() {
 // Llamar a la función para generar el menú
 createMenu();
 // Crear joypad
-function createJoypad(cube) {
+function createJoypad() {
   const joypadBase = document.createElement("div");
   joypadBase.style.position = "absolute";
   joypadBase.style.bottom = "10%";
