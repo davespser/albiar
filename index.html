@@ -6,74 +6,7 @@
   <title>Menú Desplegable</title>
    <link rel="stylesheet" href="style.css">
 </head>
-  <style>
-    /* Contenedor principal del menú */
-    #menu-container {
-      position: absolute;
-      bottom: 2%;
-      left: 2%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px;
-      border-radius: 8px;
-      z-index: 100; /* Siempre por encima */
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    /* Estilo de las opciones del menú */
-    .menu-item {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 10px;
-      color: white;
-      transform: rotate(-12deg);
-      font-size: 18px;
-      cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 4px;
-      transition: background 0.3s, transform 0.2s;
-    }
-
-    /* Icono dentro de cada opción */
-    .menu-item span {
-      margin-right: 10px;
-      font-size: 20px;
-      transform: rotate(-10deg);
-    }
-
-    /* Efecto hover */
-    .menu-item:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateX(10px);
-    }
-
-    /* Contenido desplegable */
-    .menu-content {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 30%;
-      height: 94%;
-      clip-path: polygon(0% 0%, 100% 0%, 45% 100%, 0% 100%);
-      background: linear-gradient(to bottom right, #808080, #000000 90%);/* Mantener el fondo oscuro */
-      padding: 20px;
-      box-sizing: border-box;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 99; /* Asegurar que está por detrás del menú principal */
-    }
-
-    #toggle:checked ~ .menu-content {
-      display: flex;
-    }
-
-    .hidden-input {
-      display: none;
-    }
-  </style>
+ 
 </head>
 <body>
   <div id="menu-container">
