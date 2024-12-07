@@ -1,9 +1,9 @@
 /* Contenedor principal del menú */
 #menu-container {
      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
+      position: absolute;
+      bottom: 2%;
+      right: 2%;
       width: 30%;
       height: 94%;
       clip-path: polygon(0% 0%, 100% 0%, 45% 100%, 0% 100%);
