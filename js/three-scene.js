@@ -32,7 +32,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     "./models/npc/robotauro_walk.glb",
     (gltf) => {
       robot = gltf.scene;
-      robot.position.set(x, y, z);
+      robot.position.set(x, y + 0.5, z);
       robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
       scene.add(robot);
     },
