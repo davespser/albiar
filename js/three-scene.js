@@ -45,7 +45,7 @@ animate();
     "./models/npc/robotauro_walk.glb",
     (gltf) => {
       robot = gltf.scene;
-      robot.position.set(x, y + 0.5, z);
+      robot.position.set(x, y + 1, z);
       robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
       scene.add(robot);
     },
