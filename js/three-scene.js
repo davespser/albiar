@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
 // Variables globales
-let scene, camera, renderer;
-let cube, floor, robot;
+let scene, camera, renderer, cube, floor, robot, light;
 let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
 
 // Función para cargar la escena principal
@@ -27,25 +26,15 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
-  const loader = new GLTFLoader();
-  loader.load(
-    "./models/npc/robotauro_walk.glb",
-    (gltf) => {
-      robot = gltf.scene;
-      robot.position.set(x, y + 1, z);
-      robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
-      scene.add(robot);
-    },
-    undefined,
-    (error) => {
-      console.error("Error al cargar el modelo: ", error);
-    }
-  );
   // Agregar luz direccional
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
   directionalLight.position.set(10, 20, 10);
   directionalLight.castShadow = true;
   scene.add(directionalLight);
+
+  // Luz que sigue al cubo
+  light = new THREE.PointLight(0xffffff, 1, 100);
+  scene.add(light);
 
   // Crear suelo con textura
   const floorTexture = new THREE.TextureLoader().load("./js/grasslight-big.png");
@@ -60,7 +49,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   floor.receiveShadow = true;
   scene.add(floor);
 
-  
   // Crear cubo con color del personaje
   const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshStandardMaterial({
@@ -73,10 +61,26 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   cube.castShadow = true;
   scene.add(cube);
 
+  // Cargar modelo GLTF
+  const loader = new GLTFLoader();
+  loader.load(
+    "./models/npc/robotauro_walk.glb",
+    (gltf) => {
+      robot = gltf.scene;
+      robot.position.set(x, y + 1, z);
+      robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
+      scene.add(robot);
+    },
+    undefined,
+    (error) => {
+      console.error("Error al cargar el modelo: ", error);
+    }
+  );
+
   // Crear menú superpuesto
   createMenu();
 
-  // Crear el joypad
+  // Crear joypad
   createJoypad();
 
   // Mostrar estadísticas
@@ -109,86 +113,41 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Iniciar animación
   animate();
 }
-const light = new THREE.PointLight(0xffffff, 1, 100);
-scene.add(light);
 
-// Hacer que la luz siga al cubo
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Actualizar la posición de la luz para que siempre esté encima del cubo
-  light.position.copy(cube.position);
-  light.position.y += 2; // Ajustar la altura para que la luz esté por encima del cubo
-}
-animate();
 // Crear menú superpuesto
 function createMenu() {
-  // Cargar estilos del menú
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "style.css"; // Ruta del archivo CSS del menú
-  document.head.appendChild(link);
-
-  // Crear el contenedor del menú
   const menuContainer = document.createElement("div");
   menuContainer.classList.add("menu-container");
   menuContainer.innerHTML = `
-    <!-- Input checkbox oculto para manejar el estado -->
     <input type="checkbox" id="toggle" class="hidden-input">
-    
-    <!-- Botón principal del menú -->
-    <label for="toggle" class="menu-item">
-      <span>🔸</span> Menú
-    </label>
-
-    <!-- Contenido desplegable -->
+    <label for="toggle" class="menu-item"><span>🔸</span> Menú</label>
     <div class="menu-content">
-      <div class="menu-item" data-action="option1">
-        <span>🔸</span> Opción 1
-      </div>
-      <div class="menu-item" data-action="option2">
-        <span>🔸</span> Opción 2
-      </div>
-      <div class="menu-item" data-action="option3">
-        <span>🔸</span> Opción 3
-      </div>
-      <div class="menu-item" data-action="option4">
-        <span>🔸</span> Opción 4
-      </div>
-    </div>
-  `;
+      <div class="menu-item" data-action="option1"><span>🔸</span> Opción 1</div>
+      <div class="menu-item" data-action="option2"><span>🔸</span> Opción 2</div>
+      <div class="menu-item" data-action="option3"><span>🔸</span> Opción 3</div>
+      <div class="menu-item" data-action="option4"><span>🔸</span> Opción 4</div>
+    </div>`;
   document.body.appendChild(menuContainer);
-
-  // Manejar clics en las opciones del menú
-  document.querySelectorAll(".menu-content .menu-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      const action = item.getAttribute("data-action");
-      console.log(`Has seleccionado: ${action}`);
-      // Añade lógica personalizada aquí
-    });
-  });
 }
 
-// Llamar a la función para generar el menú
-createMenu();
 // Crear joypad
 function createJoypad() {
   const joypadBase = document.createElement("div");
   joypadBase.style.position = "absolute";
   joypadBase.style.bottom = "10%";
   joypadBase.style.left = "5%";
-  joypadBase.style.width = "15%";
-  joypadBase.style.height = joypadBase.style.width;
+  joypadBase.style.width = "100px";
+  joypadBase.style.height = "100px";
   joypadBase.style.border = "2px solid white";
   joypadBase.style.borderRadius = "50%";
   joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
-  joypadBase.style.touchAction = "none"; // Evita conflictos con gestos del navegador
+  joypadBase.style.touchAction = "none";
   document.body.appendChild(joypadBase);
 
   const joypadStick = document.createElement("div");
   joypadStick.style.position = "absolute";
-  joypadStick.style.width = "40%";
-  joypadStick.style.height = joypadStick.style.width;
+  joypadStick.style.width = "40px";
+  joypadStick.style.height = "40px";
   joypadStick.style.background = "white";
   joypadStick.style.borderRadius = "50%";
   joypadStick.style.transform = "translate(30%, 30%)";
@@ -197,9 +156,8 @@ function createJoypad() {
   let isDragging = false;
   let startX = 0;
   let startY = 0;
-  const baseRect = joypadBase.getBoundingClientRect();
+  const maxRadius = 50;
 
-  // Eventos de interacción
   joypadBase.addEventListener("touchstart", (event) => {
     isDragging = true;
     const touch = event.touches[0];
@@ -213,24 +171,19 @@ function createJoypad() {
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
 
-    // Limitar el movimiento del stick dentro del círculo
-    const maxRadius = baseRect.width / 2;
     const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxRadius);
-
     const angle = Math.atan2(deltaY, deltaX);
     const stickX = Math.cos(angle) * distance;
     const stickY = Math.sin(angle) * distance;
 
-    joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 50%), calc(50% + ${stickY}px - 50%))`;
+    joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 20px), calc(50% + ${stickY}px - 20px))`;
 
-    // Mover el objeto (cube)
-    cube.position.x += (stickX / maxRadius) * 0.05; // Ajustar sensibilidad
+    cube.position.x += (stickX / maxRadius) * 0.05;
     cube.position.z += (stickY / maxRadius) * 0.05;
   });
 
   joypadBase.addEventListener("touchend", () => {
     isDragging = false;
-    // Restablecer la posición del stick al centro
     joypadStick.style.transform = "translate(30%, 30%)";
   });
 }
@@ -252,13 +205,12 @@ function handleKeyDown(event) {
   }
 }
 
-// Función para animar la escena
 function animate() {
   requestAnimationFrame(animate);
+  light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
   renderer.render(scene, camera);
 }
 
-// Desmontar la escena
 export function unloadThreeScene() {
   if (renderer) {
     renderer.dispose();
