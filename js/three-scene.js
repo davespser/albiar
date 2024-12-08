@@ -28,7 +28,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
 
   const loader = new GLTFLoader();
   loader.load(
-    "https://raw.githubusercontent.com/davespser/albiar/main/models/npc/robotauro_walk.glb",
+    "./models/npc/robotauro_walk.glb",
     (gltf) => {
       robotModel = gltf.scene;
       robotModel.position.set(x, y, z);
