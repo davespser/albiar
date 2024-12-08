@@ -26,20 +26,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Agregar luz ambiental
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
-const light = new THREE.PointLight(0xffffff, 1, 100);
-scene.add(light);
 
-// Hacer que la luz siga al cubo
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Actualizar la posición de la luz para que siempre esté encima del cubo
-  light.position.copy(cube.position);
-  light.position.y += 2; // Ajustar la altura para que la luz esté por encima del cubo
-
-  renderer.render(scene, camera);
-}
-animate();
   const loader = new GLTFLoader();
   loader.load(
     "./models/npc/robotauro_walk.glb",
@@ -122,7 +109,20 @@ animate();
   // Iniciar animación
   animate();
 }
+const light = new THREE.PointLight(0xffffff, 1, 100);
+scene.add(light);
 
+// Hacer que la luz siga al cubo
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Actualizar la posición de la luz para que siempre esté encima del cubo
+  light.position.copy(cube.position);
+  light.position.y += 2; // Ajustar la altura para que la luz esté por encima del cubo
+
+  renderer.render(scene, camera);
+}
+animate();
 // Crear menú superpuesto
 function createMenu() {
   // Cargar estilos del menú
