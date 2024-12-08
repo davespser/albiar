@@ -4,52 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menú Desplegable</title>
-   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
- <body>
+<body>
   <div class="menu-container">
-  <!-- Input checkbox oculto para manejar el estado -->
-  <input type="checkbox" id="toggle" class="hidden-input">
-
-  <!-- Botón principal del menú -->
-  <label for="toggle" class="menu-item">
-    <span>🔸</span> Menú
-  </label>
-
-  <!-- Contenido desplegable -->
-  <div class="menu-content">
-    <div class="menu-item" data-action="option2">
-      <span>🔸</span> Opción 2
-    </div>
-    <div class="menu-item" data-action="option3">
-      <span>🔸</span> Opción 3
-    </div>
-    <div class="menu-item" data-action="option4">
-      <span>🔸</span> Opción 4
+    <!-- Input checkbox oculto para manejar el estado -->
+    <input type="checkbox" id="toggle" class="hidden-input">
+    <!-- Botón principal del menú -->
+    <label for="toggle" class="menu-item"><span>🔸</span> Menú</label>
+    <!-- Contenido desplegable -->
+    <div class="menu-content">
+      <div class="menu-item" data-action="option2"><span>🔸</span> Opción 2</div>
+      <div class="menu-item" data-action="option3"><span>🔸</span> Opción 3</div>
+      <div class="menu-item" data-action="option4"><span>🔸</span> Opción 4</div>
     </div>
   </div>
-  </div>
 
-  <script type="module" src="js/app.js"></script>
-  <script type="module" src="js/characterCreator.js"></script>
-  <script type="module" src="js/three-scene.js"></script>
-  
   <h1>Firebase + Three.js</h1>
 
   <h2>Registro</h2>
   <input type="email" id="register-email" placeholder="Correo">
   <input type="password" id="register-password" placeholder="Contraseña">
-  <button onclick="handleRegister()">Registrarse</button>
+  <button id="register-button">Registrarse</button>
 
   <h2>Inicio de Sesión</h2>
   <input type="email" id="login-email" placeholder="Correo">
   <input type="password" id="login-password" placeholder="Contraseña">
-  <button onclick="handleLogin()">Iniciar Sesión</button>
+  <button id="login-button">Iniciar Sesión</button>
 
   <h2>Sesión Activa</h2>
-  <button onclick="handleLogout()">Cerrar Sesión</button>
+  <button id="logout-button">Cerrar Sesión</button>
 
-  <!-- Contenedor para mensajes -->
   <div id="messages"></div>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
