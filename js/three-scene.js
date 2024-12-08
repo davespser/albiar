@@ -2,7 +2,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.m
 import { GLTFLoader } from "./js/GLTFLoader.js"
 // Variables globales
 let scene, camera, renderer;
-let cube, floor;
+let cube, floor, robot;
 let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
 
 // Función para cargar la escena principal
@@ -45,6 +45,13 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   floor.receiveShadow = true;
   scene.add(floor);
 
+  const loader = new GLTFLoader();
+loader.load('https://github.com/davespser/albiar/blob/main/models/npc/robotauro_walk.glb', (gltf) => {
+    robot = gltf.scene;
+    robot.position.set(x, y, z);
+    robot.scale.set(0.5, 0.5, 0.5); // Escalar el modelo si es necesario
+    scene.add(robot);
+});
   // Crear cubo con color del personaje
   const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshStandardMaterial({
