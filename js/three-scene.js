@@ -26,6 +26,20 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
+  const loader = new GLTFLoader();
+  loader.load(
+    "https://raw.githubusercontent.com/davespser/albiar/main/models/npc/robotauro_walk.glb",
+    (gltf) => {
+      robotModel = gltf.scene;
+      robotModel.position.set(x, y, z);
+      robotModel.scale.set(1, 1, 1); // Ajusta la escala si es necesario
+      scene.add(robotModel);
+    },
+    undefined,
+    (error) => {
+      console.error("Error al cargar el modelo: ", error);
+    }
+  );
   // Agregar luz direccional
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
   directionalLight.position.set(10, 20, 10);
@@ -45,13 +59,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   floor.receiveShadow = true;
   scene.add(floor);
 
-  const loader = new GLTFLoader();
-loader.load('https://github.com/davespser/albiar/blob/main/models/npc/robotauro_walk.glb', (gltf) => {
-    robot = gltf.scene;
-    robot.position.set(x, y, z);
-    robot.scale.set(0.5, 0.5, 0.5); // Escalar el modelo si es necesario
-    scene.add(robot);
-});
+  
   // Crear cubo con color del personaje
   const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshStandardMaterial({
