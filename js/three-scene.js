@@ -33,7 +33,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     (gltf) => {
       robot = gltf.scene;
       robot.position.set(x, y, z);
-      robot.scale.set(1, 1, 1); // Ajusta la escala si es necesario
+      robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
       scene.add(robot);
     },
     undefined,
