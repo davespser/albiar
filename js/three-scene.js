@@ -1,5 +1,5 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
-
+import { GLTFLoader } from "https://cdn.jsdeliver.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js";
 // Variables globales
 let scene, camera, renderer;
 let cube, floor;
@@ -225,7 +225,33 @@ function handleKeyDown(event) {
       break;
   }
 }
+const loader = new GLTFLoader();
+const npcModels = [
+    './models/npc/robotauro.glb', // Ruta del primer modelo
+     // Ruta del segundo modelo
+];
 
+npcModels.forEach((modelPath, index) => {
+    loader.load(
+        modelPath,
+        (gltf) => {
+            const npc = gltf.scene;
+            npc.position.set(index * 2, 0, 0); // Posicionar los NPCs en la escena
+            npc.scale.set(1, 1, 1); // Escalar el modelo si es necesario
+
+            // Animar los NPCs (opcional)
+            npc.userData.update = () => {
+                npc.rotation.y += 0.01; // Ejemplo de animación simple
+            };
+
+            scene.add(npc);
+        },
+        undefined,
+        (error) => {
+            console.error('Error cargando el modelo:', error);
+        }
+    );
+});
 // Función para animar la escena
 function animate() {
   requestAnimationFrame(animate);
