@@ -1,9 +1,8 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js";
 
 // Variables globales
 let scene, camera, renderer;
-let cube, floor, robotModel;
+let cube, floor;
 let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
 
 // Función para cargar la escena principal
@@ -46,21 +45,18 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   floor.receiveShadow = true;
   scene.add(floor);
 
-  // Cargar modelo GLTF
-  const loader = new GLTFLoader();
-  loader.load(
-    "./models/npc/robotauro_walk.glb",
-    (gltf) => {
-      robotModel = gltf.scene;
-      robotModel.position.set(x, y, z);
-      robotModel.scale.set(1, 1, 1); // Ajusta la escala si es necesario
-      scene.add(robotModel);
-    },
-    undefined,
-    (error) => {
-      console.error("Error al cargar el modelo: ", error);
-    }
-  );
+  // Crear cubo con color del personaje
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshStandardMaterial({
+    color,
+    metalness: 0.9,
+    roughness: 0.1,
+    specular: 0xffffff,
+  });
+  cube = new THREE.Mesh(geometry, material);
+  cube.position.set(x, y + 0.5, z);
+  cube.castShadow = true;
+  scene.add(cube);
 
   // Crear menú superpuesto
   createMenu();
@@ -147,6 +143,8 @@ function createMenu() {
   });
 }
 
+// Llamar a la función para generar el menú
+createMenu();
 // Crear joypad
 function createJoypad() {
   const joypadBase = document.createElement("div");
@@ -240,4 +238,4 @@ export function unloadThreeScene() {
     renderer.dispose();
     document.body.innerHTML = ""; // Limpiar la interfaz
   }
-    }
+}
