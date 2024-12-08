@@ -119,8 +119,6 @@ function animate() {
   // Actualizar la posición de la luz para que siempre esté encima del cubo
   light.position.copy(cube.position);
   light.position.y += 2; // Ajustar la altura para que la luz esté por encima del cubo
-
-  renderer.render(scene, camera);
 }
 animate();
 // Crear menú superpuesto
