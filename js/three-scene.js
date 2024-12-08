@@ -227,7 +227,7 @@ function handleKeyDown(event) {
 }
 const loader = new GLTFLoader();
 const npcModels = [
-    './models/npc/robotauro.glb', // Ruta del primer modelo
+    './models/npc/robotauro_walk.glb', // Ruta del primer modelo
      // Ruta del segundo modelo
 ];
 
