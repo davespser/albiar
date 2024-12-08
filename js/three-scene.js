@@ -67,7 +67,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     "./models/npc/robotauro_walk.glb",
     (gltf) => {
       robot = gltf.scene;
-      robot.position.set(x, y + 1.5, z);
+      robot.position.set(x, y + 2.5, z);
       robot.scale.set(0.1, 0.1, 0.1); // Ajusta la escala si es necesario
       scene.add(robot);
     },
@@ -207,7 +207,7 @@ function handleKeyDown(event) {
 
 function animate() {
   requestAnimationFrame(animate);
-  light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
+  light.position.copy(cube.position).add(new THREE.Vector3(0, 0.5, -1));
   light.lookAt(cube.position)
   renderer.render(scene, camera);
   
