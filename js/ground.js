@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-class ProceduralMap {
+class ProceduralTerrain {
     constructor(size, heightScale, grassTexturePath, dirtTexturePath) {
         this.size = size;
         this.heightScale = heightScale;
@@ -92,5 +92,5 @@ class ProceduralMap {
 }
 
 // Uso:
-const proceduralMap = new ProceduralMap(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
+const proceduralTerrain = new ProceduralTerrain(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
 export default ProceduralTerrain;
