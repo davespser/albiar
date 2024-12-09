@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Variables globales
-let scene, camera, renderer, cube, floor, robot, light;
+let scene, camera, renderer, cube, floor, robot, light, mixer;
 let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
-
+let clock = new Three.Clock
 // Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
   // Crear escena
@@ -78,12 +78,29 @@ scene.add(cube);
       robot.position.set(x, y + 2.5, z);
       robot.scale.set(0.05, 0.05, 0.05); // Ajusta la escala si es necesario
       scene.add(robot);
+      THREE.AnimationMixer(robot);
+    const walkAction = mixer.clipAction(gltf.animations[0]); // Supongamos que la animación de caminar es la primera
+    walkAction.play(); // Reproducir la animación
+  
     },
     undefined,
     (error) => {
       console.error("Error al cargar el modelo: ", error);
     }
   );
+  function animate() {
+  requestAnimationFrame(animate);
+
+  const delta = clock.getDelta(); // Tiempo transcurrido desde el último frame
+
+  // Actualizar el mixer (animaciones)
+  if (mixer) mixer.update(delta);
+
+  // Mover el modelo hacia adelante
+  if (robot) {
+    robot.position.z -= 0.05; // Cambia esta velocidad según lo necesites
+    robot.rotation.y = Math.PI; // Ajusta la orientación si es necesario
+  }
 
   // Crear menú superpuesto
   createMenu();
