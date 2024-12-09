@@ -1,95 +1,84 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
-class ProceduralTerrain {
-    constructor(scene) {
-        this.scene = scene;
-        this.terrainSize = 2000; // Tamaño del terreno
-        this.terrainHeight = 200; // Altura máxima del terreno
-
-        this.init();
+export default class ProceduralTerrain {
+    constructor(heightMapSize, size, texture1Path, texture2Path, scene = null) {
+        this.heightMapSize = heightMapSize;
+        this.size = size;
+        this.texture1Path = texture1Path;
+        this.texture2Path = texture2Path;
+        this.scene = scene; // Referencia a la escena
+        this.heightData = null;
+        this.textures = null;
     }
 
     async init() {
         await this.loadTextures();
+        this.generateHeightMap();
         this.createTerrain();
     }
 
     async loadTextures() {
-        const textureLoader = new THREE.TextureLoader();
+        const loader = new THREE.TextureLoader();
+        const texture1 = loader.load(this.texture1Path);
+        const texture2 = loader.load(this.texture2Path);
 
-        this.grassTexture = await new Promise((resolve, reject) => {
-            textureLoader.load('./js/textures/terrain1.jpg', resolve, undefined, reject);
-        });
+        // Configurar texturas
+        texture1.wrapS = texture1.wrapT = THREE.RepeatWrapping;
+        texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
 
-        this.dirtTexture = await new Promise((resolve, reject) => {
-            textureLoader.load('./js/textures/terrain2.jpg', resolve, undefined, reject);
-        });
+        this.textures = { texture1, texture2 };
+    }
 
-        this.grassTexture.wrapS = this.grassTexture.wrapT = THREE.RepeatWrapping;
-        this.dirtTexture.wrapS = this.dirtTexture.wrapT = THREE.RepeatWrapping;
+    generateHeightMap() {
+        const size = this.heightMapSize * this.heightMapSize;
+        this.heightData = new Float32Array(size);
+
+        for (let i = 0; i < size; i++) {
+            this.heightData[i] = Math.random() * 10; // Alturas aleatorias (puedes ajustar)
+        }
+    }
+
+    exportTexture() {
+        if (!this.textures) {
+            console.error("Las texturas no han sido cargadas.");
+            return null;
+        }
+        return this.textures.texture1; // Por simplicidad, devolver textura 1
     }
 
     createTerrain() {
-        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
-
-        // Generar alturas de forma procedural
-        const position = geometry.attributes.position;
-        for (let i = 0; i < position.count; i++) {
-            const x = position.getX(i);
-            const y = position.getY(i);
-
-            const height = this.generateHeight(x, y);
-            position.setZ(i, height);
+        if (!this.heightData) {
+            console.error("No se ha generado el mapa de alturas.");
+            return;
         }
 
+        const geometry = new THREE.PlaneGeometry(
+            this.size,
+            this.size,
+            this.heightMapSize - 1,
+            this.heightMapSize - 1
+        );
+
+        // Aplicar alturas al terreno
+        for (let i = 0; i < geometry.attributes.position.count; i++) {
+            const y = this.heightData[i];
+            geometry.attributes.position.setY(i, y);
+        }
+
+        geometry.attributes.position.needsUpdate = true;
         geometry.computeVertexNormals();
 
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                grassTexture: { value: this.grassTexture },
-                dirtTexture: { value: this.dirtTexture },
-                terrainSize: { value: this.terrainSize },
-                terrainHeight: { value: this.terrainHeight },
-            },
-            vertexShader: `
-                varying float vHeight;
-                varying vec2 vUv;
-
-                void main() {
-                    vUv = uv;
-                    vHeight = position.z / terrainHeight;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform sampler2D grassTexture;
-                uniform sampler2D dirtTexture;
-                uniform float terrainHeight;
-
-                varying float vHeight;
-                varying vec2 vUv;
-
-                void main() {
-                    float blendFactor = smoothstep(0.3, 0.6, vHeight);
-                    vec4 grassColor = texture2D(grassTexture, vUv * 10.0); // Repetir textura
-                    vec4 dirtColor = texture2D(dirtTexture, vUv * 10.0);
-                    gl_FragColor = mix(dirtColor, grassColor, blendFactor);
-                }
-            `
-        });
+        const material = new THREE.MeshLambertMaterial({ map: this.exportTexture() });
 
         const terrain = new THREE.Mesh(geometry, material);
         terrain.rotation.x = -Math.PI / 2;
-        this.scene.add(terrain);
-    }
+        terrain.receiveShadow = true;
 
-    generateHeight(x, y) {
-        const scale = 0.002; // Escala para el ruido
-        const amplitude = this.terrainHeight;
-
-        // Perlin noise o alguna función procedural simple
-        return Math.sin(x * scale) * Math.cos(y * scale) * amplitude;
+        // Agregar terreno a la escena
+        if (this.scene) {
+            this.scene.add(terrain);
+        } else {
+            console.warn("No se ha proporcionado una escena para ProceduralTerrain.");
+        }
     }
 }
-
-export default ProceduralTerrain;
