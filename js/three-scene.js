@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
-import proceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
+import ProceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
 
 let scene, camera, renderer, cube, terrain, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
@@ -39,8 +39,24 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   scene.add(light);
 
   // Crear terreno procedural
-  terrain = new ProceduralTerrain(scene);
+  const proceduralTerrain = new ProceduralTerrain(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
 
+// Crear malla de terreno
+async function createTerrainMesh() {
+    // Asegurarse de que las texturas se han cargado y el mapa procedural se ha generado
+    await proceduralTerrain.init();
+
+    // Obtener la textura generada
+    const terrainTexture = proceduralTerrain.exportTexture();
+
+    // Crear geometría y material del terreno
+    const geometry = new THREE.PlaneGeometry(proceduralTerrain.size, proceduralTerrain.size, 255, 255);
+    const material = new THREE.MeshLambertMaterial({ map: terrainTexture });
+
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2;
+    scene.add(terrain);
+}
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
   const specularMap = textureLoader.load("./js/Specularbox.png");
