@@ -23,7 +23,7 @@ class ProceduralTerrain {
 
     async loadAssets() {
         this.heightMap = await this.loadTexture('./js/textures/heightmap.jpg');
-        this.grassTexture = await this.loadTexture('./js/textures/grass.jpg');
+        this.grassTexture = await this.loadTexture('./js/textures/terrain1.jpg');
         this.dirtTexture = await this.loadTexture('./js/textures/terrain1.jpg');
     }
 
