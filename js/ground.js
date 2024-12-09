@@ -3,8 +3,8 @@ import * as THREE from "three";
 export function createFloor() {
   // Cargar el mapa de desplazamiento y la textura del terreno
   const textureLoader = new THREE.TextureLoader();
-  const displacementMap = textureLoader.load("./textures/displacement.png"); // Ruta del mapa de desplazamiento
-  const terrainTexture = textureLoader.load("./textures/terrain.jpg"); // Ruta de la textura del terreno
+  const displacementMap = textureLoader.load("./js/textures/displacement.png"); // Ruta del mapa de desplazamiento
+  const terrainTexture = textureLoader.load("./js/textures/terrain.jpg"); // Ruta de la textura del terreno
 
   // Configurar la textura del terreno
   terrainTexture.wrapS = THREE.RepeatWrapping;
