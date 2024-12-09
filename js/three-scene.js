@@ -14,7 +14,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(x + 10, y + 5, z + 10);
-  camera.lookAt(cube);
+  camera.lookAt(x + 10, y + 5, z + 10);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -204,23 +204,31 @@ function handleKeyDown(event) {
 function animate() {
   requestAnimationFrame(animate);
 
-  const delta = clock.getDelta();
+  const delta = clock.getDelta(); // Tiempo transcurrido desde el último frame
 
+  // Actualizar el mixer (animaciones)
   if (mixer) mixer.update(delta);
 
+  // Actualizar posición del robot (si es necesario)
   if (robot) {
-    robot.position.z -= speed / 2; // Simula caminar hacia adelante
-    robot.rotation.y = Math.PI; // Ajusta orientación
+    robot.position.z -= speed / 2;
+    robot.rotation.y = Math.PI; // Ajustar orientación
   }
 
+  // Actualizar la posición de la cámara para seguir al cubo
   if (cube) {
-    light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
+    const desiredPosition = new THREE.Vector3().addVectors(cube.position, cameraOffset);
+    camera.position.lerp(desiredPosition, 0.1); // Suavizar movimiento de la cámara
+    camera.lookAt(cube.position); // La cámara siempre mira al cubo
   }
 
+  // Actualizar posición de la luz para que siga al cubo
+  light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
+
+  // Renderizar la escena
   renderer.render(scene, camera);
 }
 
-// Descargar la escena
 export function unloadThreeScene() {
   if (renderer) {
     renderer.dispose();
