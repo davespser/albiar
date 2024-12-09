@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
-import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
+import { ProceduralTerrain } from "./ground.js"; // Importar la función para crear el suelo
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
