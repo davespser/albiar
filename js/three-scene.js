@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
-import ProceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
+import proceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
 
 let scene, camera, renderer, cube, terrain, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
