@@ -93,4 +93,4 @@ class ProceduralTerrain {
 
 // Uso:
 const proceduralTerrain = new ProceduralTerrain(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
-export default ProceduralTerrain;
+export default proceduralTerrain;
