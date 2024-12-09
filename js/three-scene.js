@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
+import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
@@ -37,17 +38,8 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   light = new THREE.PointLight(0xffffff, 1, 100);
   scene.add(light);
 
-  // Crear suelo con textura
-  const floorTexture = new THREE.TextureLoader().load("./js/grasslight-big.png");
-  floorTexture.wrapS = THREE.RepeatWrapping;
-  floorTexture.wrapT = THREE.RepeatWrapping;
-  floorTexture.repeat.set(10, 10);
-
-  const floorMaterial = new THREE.MeshStandardMaterial({ map: floorTexture });
-  const floorGeometry = new THREE.PlaneGeometry(50, 50);
-  floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
+  // Crear suelo usando `createFloor` desde ground.js
+  floor = createFloor();
   scene.add(floor);
 
   // Crear cubo con specularMap
