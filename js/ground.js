@@ -3,7 +3,7 @@ import * as THREE from "three";
 export function createFloor() {
   // Cargar las texturas
   const textureLoader = new THREE.TextureLoader();
-  const displacementMap = textureLoader.load("./js/textures/displacement.png"); // Mapa de desplazamiento
+  const displacementMap = textureLoader.load("./js/textures/heightmap.jpg"); // Mapa de desplazamiento
   const grassTexture = textureLoader.load("./js/textures/terrain1.jpg"); // Textura de hierba
   const dirtTexture = textureLoader.load("./js/textures/terrain2.jpg"); // Textura de tierra
 
