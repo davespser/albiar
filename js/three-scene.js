@@ -38,14 +38,45 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   light = new THREE.PointLight(0xffffff, 1, 100);
   scene.add(light);
 
+  
+  
   // Crear terreno procedural
-  const proceduralTerrain = new ProceduralTerrain(scene, {
-    terrainSize: 2000, // Tamaño del terreno
-    terrainSegments: 256, // Segmentos del plano
-    grassTexture: './js/textures/terrain1.jpg',
-    dirtTexture: './js/textures/terrain2.jpg'
-  });
-  proceduralTerrain.create();
+async function createTerrainMesh() {
+    // Crear instancia de ProceduralTerrain
+    const proceduralTerrain = new ProceduralTerrain(
+        256, // Resolución del mapa de alturas
+        200, // Tamaño del terreno
+        './js/textures/terrain1.jpg', // Textura 1
+        './js/textures/terrain2.jpg'  // Textura 2
+    );
+
+    // Inicializar y generar el terreno
+    await proceduralTerrain.init();
+
+    // Crear geometría y material para el terreno
+    const geometry = new THREE.PlaneGeometry(
+        proceduralTerrain.size,
+        proceduralTerrain.size,
+        proceduralTerrain.heightMapSize - 1,
+        proceduralTerrain.heightMapSize - 1
+    );
+
+    // Material con textura generada por ProceduralTerrain
+    const material = new THREE.MeshLambertMaterial({
+        map: proceduralTerrain.exportTexture(),
+    });
+
+    // Crear la malla del terreno
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2; // Rotar para que quede horizontal
+    terrain.receiveShadow = true;
+
+    // Añadir el terreno a la escena
+    scene.add(terrain);
+}
+
+// Llamar a la función para generar el terreno al cargar la escena
+createTerrainMesh();
 
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
