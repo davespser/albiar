@@ -1,96 +1,95 @@
 import * as THREE from 'three';
 
 class ProceduralTerrain {
-    constructor(size, heightScale, grassTexturePath, dirtTexturePath) {
-        this.size = size;
-        this.heightScale = heightScale;
-        this.grassTexturePath = grassTexturePath;
-        this.dirtTexturePath = dirtTexturePath;
+    constructor(scene) {
+        this.scene = scene;
+        this.terrainSize = 2000; // Tamaño del terreno
+        this.terrainHeight = 200; // Altura máxima del terreno
+
         this.init();
     }
 
     async init() {
         await this.loadTextures();
-        this.generateHeightMap();
-        this.generateProceduralMap();
+        this.createTerrain();
     }
 
     async loadTextures() {
         const textureLoader = new THREE.TextureLoader();
-        this.grassTexture = await textureLoader.loadAsync(this.grassTexturePath);
-        this.dirtTexture = await textureLoader.loadAsync(this.dirtTexturePath);
+
+        this.grassTexture = await new Promise((resolve, reject) => {
+            textureLoader.load('./js/textures/terrain1.jpg', resolve, undefined, reject);
+        });
+
+        this.dirtTexture = await new Promise((resolve, reject) => {
+            textureLoader.load('./js/textures/terrain2.jpg', resolve, undefined, reject);
+        });
+
+        this.grassTexture.wrapS = this.grassTexture.wrapT = THREE.RepeatWrapping;
+        this.dirtTexture.wrapS = this.dirtTexture.wrapT = THREE.RepeatWrapping;
     }
 
-    generateHeightMap() {
-        const size = this.size;
-        this.heightData = new Float32Array(size * size);
-        for (let i = 0; i < size * size; i++) {
-            this.heightData[i] = Math.random(); // Valores de altura aleatorios
-        }
-    }
+    createTerrain() {
+        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
 
-    generateProceduralMap() {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.size;
-        canvas.height = this.size;
-        const context = canvas.getContext('2d');
+        // Generar alturas de forma procedural
+        const position = geometry.attributes.position;
+        for (let i = 0; i < position.count; i++) {
+            const x = position.getX(i);
+            const y = position.getY(i);
 
-        const grassImage = this.grassTexture.image;
-        const dirtImage = this.dirtTexture.image;
-
-        for (let y = 0; y < this.size; y++) {
-            for (let x = 0; x < this.size; x++) {
-                const index = x + y * this.size;
-                const heightValue = this.heightData[index];
-
-                // Mezclar las texturas basadas en el valor de altura
-                const grassPixel = this.getPixel(grassImage, x, y);
-                const dirtPixel = this.getPixel(dirtImage, x, y);
-                const mixedPixel = this.mixPixels(dirtPixel, grassPixel, heightValue);
-
-                this.setPixel(context, x, y, mixedPixel);
-            }
+            const height = this.generateHeight(x, y);
+            position.setZ(i, height);
         }
 
-        const texture = new THREE.CanvasTexture(canvas);
-        this.exportTexture(texture);
+        geometry.computeVertexNormals();
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                grassTexture: { value: this.grassTexture },
+                dirtTexture: { value: this.dirtTexture },
+                terrainSize: { value: this.terrainSize },
+                terrainHeight: { value: this.terrainHeight },
+            },
+            vertexShader: `
+                varying float vHeight;
+                varying vec2 vUv;
+
+                void main() {
+                    vUv = uv;
+                    vHeight = position.z / terrainHeight;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D grassTexture;
+                uniform sampler2D dirtTexture;
+                uniform float terrainHeight;
+
+                varying float vHeight;
+                varying vec2 vUv;
+
+                void main() {
+                    float blendFactor = smoothstep(0.3, 0.6, vHeight);
+                    vec4 grassColor = texture2D(grassTexture, vUv * 10.0); // Repetir textura
+                    vec4 dirtColor = texture2D(dirtTexture, vUv * 10.0);
+                    gl_FragColor = mix(dirtColor, grassColor, blendFactor);
+                }
+            `
+        });
+
+        const terrain = new THREE.Mesh(geometry, material);
+        terrain.rotation.x = -Math.PI / 2;
+        this.scene.add(terrain);
     }
 
-    getPixel(image, x, y) {
-        const width = image.width;
-        const height = image.height;
-        x = Math.floor(x % width);
-        y = Math.floor(y % height);
-        const context = document.createElement('canvas').getContext('2d');
-        context.drawImage(image, 0, 0, width, height);
-        const data = context.getImageData(x, y, 1, 1).data;
-        return { r: data[0], g: data[1], b: data[2], a: data[3] };
-    }
+    generateHeight(x, y) {
+        const scale = 0.002; // Escala para el ruido
+        const amplitude = this.terrainHeight;
 
-    mixPixels(pixel1, pixel2, factor) {
-        return {
-            r: pixel1.r * (1 - factor) + pixel2.r * factor,
-            g: pixel1.g * (1 - factor) + pixel2.g * factor,
-            b: pixel1.b * (1 - factor) + pixel2.b * factor,
-            a: pixel1.a * (1 - factor) + pixel2.a * factor,
-        };
-    }
-
-    setPixel(context, x, y, pixel) {
-        const imageData = context.createImageData(1, 1);
-        imageData.data[0] = pixel.r;
-        imageData.data[1] = pixel.g;
-        imageData.data[2] = pixel.b;
-        imageData.data[3] = pixel.a;
-        context.putImageData(imageData, x, y);
-    }
-
-    exportTexture(texture) {
-        // Aquí puedes exportar la textura generada y usarla en tu escena
-        console.log('Procedural texture generated and ready to be used in your scene:', texture);
+        // Perlin noise o alguna función procedural simple
+        return Math.sin(x * scale) * Math.cos(y * scale) * amplitude;
     }
 }
 
-// Uso:
-const proceduralTerrain = new ProceduralTerrain(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
-export default proceduralTerrain;
+export default ProceduralTerrain;
