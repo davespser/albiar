@@ -33,55 +33,59 @@ class ProceduralTerrain {
         });
     }
 
-createTerrain() {
-    if (!this.heightMap || !this.heightMap.image) {
-        console.error("El mapa de altura no está cargado correctamente.");
-        return;
+    createTerrain() {
+        if (!this.heightMap || !this.heightMap.image) {
+            console.error("El mapa de altura no está cargado correctamente.");
+            return;
+        }
+
+        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
+        const positionAttribute = geometry.attributes.position;
+
+        // Verificar que el mapa de alturas tiene suficientes datos
+        const heightData = this.getHeightData(this.heightMap.image);
+        if (heightData.length !== positionAttribute.count) {
+            console.error("El tamaño de heightData no coincide con la cantidad de vértices.");
+            return;
+        }
+
+        for (let i = 0; i < positionAttribute.count; i++) {
+            const z = heightData[i] * this.terrainHeight;
+            positionAttribute.setZ(i, z);
+        }
+        positionAttribute.needsUpdate = true;
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                grassTexture: { value: this.grassTexture },
+                dirtTexture: { value: this.dirtTexture },
+                heightScale: { value: this.terrainHeight }
+            },
+            vertexShader: `
+                varying float vHeight;
+                void main() {
+                    vHeight = position.z;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D grassTexture;
+                uniform sampler2D dirtTexture;
+                uniform float heightScale;
+                varying float vHeight;
+                void main() {
+                    float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
+                    vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
+                    vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
+                    gl_FragColor = mix(dirt, grass, factor);
+                }
+            `
+        });
+
+        const terrain = new THREE.Mesh(geometry, material);
+        terrain.rotation.x = -Math.PI / 2;
+        this.scene.add(terrain);
     }
-
-    const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
-    const positionAttribute = geometry.attributes.position;
-
-    // Modificar posiciones usando el mapa de altura
-    const heightData = this.getHeightData(this.heightMap.image);
-    for (let i = 0; i < positionAttribute.count; i++) {
-        const z = heightData[i] * this.terrainHeight;
-        positionAttribute.setZ(i, z);
-    }
-    positionAttribute.needsUpdate = true;
-
-    // Material mezclando texturas según la altura
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            grassTexture: { value: this.grassTexture },
-            dirtTexture: { value: this.dirtTexture },
-            heightScale: { value: this.terrainHeight }
-        },
-        vertexShader: `
-            varying float vHeight;
-            void main() {
-                vHeight = position.z;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform sampler2D grassTexture;
-            uniform sampler2D dirtTexture;
-            uniform float heightScale;
-            varying float vHeight;
-            void main() {
-                float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
-                vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
-                vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
-                gl_FragColor = mix(dirt, grass, factor);
-            }
-        `
-    });
-
-    const terrain = new THREE.Mesh(geometry, material);
-    terrain.rotation.x = -Math.PI / 2;
-    this.scene.add(terrain);
-}
 
     createGrass() {
         const grassGeometry = new THREE.BufferGeometry();
@@ -122,10 +126,10 @@ createTerrain() {
         context.drawImage(image, 0, 0);
 
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const data = new Float32Array(canvas.width * canvas.height);
+        const data = new Float32Array(imageData.width * imageData.height);
 
         for (let i = 0; i < data.length; i++) {
-            data[i] = imageData.data[i * 4] / 255; // Normalizar a 0-1
+            data[i] = imageData.data[i * 4] / 255; // Usar el canal rojo (normalizar entre 0 y 1)
         }
 
         return data;
