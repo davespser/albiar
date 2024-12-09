@@ -87,8 +87,10 @@ class ProceduralTerrain {
         `
     });
 
-    const terrain = new THREE.Mesh(geometry, material
-
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2;
+    this.scene.add(terrain);
+    }
     createGrass() {
         const grassGeometry = new THREE.BufferGeometry();
         const positions = [];
