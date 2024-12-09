@@ -14,7 +14,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(x + 10, y + 5, z + 10);
-  camera.lookAt(x, y, z);
+  camera.lookAt(cube);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
