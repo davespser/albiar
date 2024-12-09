@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Water } from 'three/examples/jsm/objects/Water.js';
 
 class ProceduralTerrain {
     constructor(scene, assets) {
@@ -16,7 +15,6 @@ class ProceduralTerrain {
         await this.loadAssets();
         this.createTerrain();
         this.createGrass();
-        this.createWater();
         this.addFog();
 
         this.wind = { intensity: 0.5, direction: new THREE.Vector3(0.5, 0, 0.5).normalize() };
@@ -25,7 +23,7 @@ class ProceduralTerrain {
 
     async loadAssets() {
         this.heightMap = await this.loadTexture('./js/textures/heightmap.jpg');
-        this.grassTexture = await this.loadTexture('./js/textures/terrain1.jpg');
+        this.grassTexture = await this.loadTexture('./js/textures/grass.jpg');
         this.dirtTexture = await this.loadTexture('./js/textures/terrain2.jpg');
     }
 
@@ -101,22 +99,6 @@ class ProceduralTerrain {
 
         const grass = new THREE.Points(grassGeometry, grassMaterial);
         this.scene.add(grass);
-    }
-
-    createWater() {
-        const waterGeometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize);
-        const water = new Water(waterGeometry, {
-            textureWidth: 512,
-            textureHeight: 512,
-            waterNormals: this.loadTexture('./assets/waternormals.jpg'),
-            sunDirection: new THREE.Vector3(),
-            sunColor: 0xffffff,
-            waterColor: 0x001eff,
-            distortionScale: 3.7,
-        });
-        water.rotation.x = -Math.PI / 2;
-        water.position.y = this.terrainHeight * 0.3; // Ajustar altura
-        this.scene.add(water);
     }
 
     addFog() {
