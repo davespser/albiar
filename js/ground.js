@@ -33,47 +33,55 @@ class ProceduralTerrain {
         });
     }
 
-    createTerrain() {
-        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
-
-        // Modificar vértices usando el mapa de alturas
-        const heightData = this.getHeightData(this.heightMap.image);
-        geometry.vertices.forEach((vertex, index) => {
-            vertex.z = heightData[index] * this.terrainHeight;
-        });
-
-        // Material mezclando texturas según la altura
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                grassTexture: { value: this.grassTexture },
-                dirtTexture: { value: this.dirtTexture },
-                heightScale: { value: this.terrainHeight }
-            },
-            vertexShader: `
-                varying float vHeight;
-                void main() {
-                    vHeight = position.z;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform sampler2D grassTexture;
-                uniform sampler2D dirtTexture;
-                uniform float heightScale;
-                varying float vHeight;
-                void main() {
-                    float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
-                    vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
-                    vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
-                    gl_FragColor = mix(dirt, grass, factor);
-                }
-            `
-        });
-
-        const terrain = new THREE.Mesh(geometry, material);
-        terrain.rotation.x = -Math.PI / 2;
-        this.scene.add(terrain);
+createTerrain() {
+    if (!this.heightMap || !this.heightMap.image) {
+        console.error("El mapa de altura no está cargado correctamente.");
+        return;
     }
+
+    const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
+    const positionAttribute = geometry.attributes.position;
+
+    // Modificar posiciones usando el mapa de altura
+    const heightData = this.getHeightData(this.heightMap.image);
+    for (let i = 0; i < positionAttribute.count; i++) {
+        const z = heightData[i] * this.terrainHeight;
+        positionAttribute.setZ(i, z);
+    }
+    positionAttribute.needsUpdate = true;
+
+    // Material mezclando texturas según la altura
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            grassTexture: { value: this.grassTexture },
+            dirtTexture: { value: this.dirtTexture },
+            heightScale: { value: this.terrainHeight }
+        },
+        vertexShader: `
+            varying float vHeight;
+            void main() {
+                vHeight = position.z;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D grassTexture;
+            uniform sampler2D dirtTexture;
+            uniform float heightScale;
+            varying float vHeight;
+            void main() {
+                float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
+                vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
+                vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
+                gl_FragColor = mix(dirt, grass, factor);
+            }
+        `
+    });
+
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2;
+    this.scene.add(terrain);
+}
 
     createGrass() {
         const grassGeometry = new THREE.BufferGeometry();
