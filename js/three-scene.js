@@ -53,6 +53,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshStandardMaterial({
     color,
+    material.envMap = environmentMap;
     metalness: 1,
     roughness: 0.1,
   });
