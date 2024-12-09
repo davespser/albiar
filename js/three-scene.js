@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
+import { createMenu, createJoypad } from "./js/ui.js"; // Importar funciones de interfaz
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
