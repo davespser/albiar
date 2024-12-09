@@ -34,57 +34,58 @@ class ProceduralTerrain {
     }
 
     createTerrain() {
-        if (!this.heightMap || !this.heightMap.image) {
-            console.error("El mapa de altura no está cargado correctamente.");
-            return;
-        }
+    if (!this.heightMap || !this.heightMap.image) {
+        console.error("El mapa de altura no está cargado correctamente.");
+        return;
+    }
 
-        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 256, 256);
-        const positionAttribute = geometry.attributes.position;
+    const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 255, 255); // Ajustado a 255 segmentos para 256 puntos
+    const positionAttribute = geometry.attributes.position;
 
-        // Verificar que el mapa de alturas tiene suficientes datos
-        const heightData = this.getHeightData(this.heightMap.image);
-        if (heightData.length !== positionAttribute.count) {
-            console.error("El tamaño de heightData no coincide con la cantidad de vértices.");
-            return;
-        }
+    // Verificar que el mapa de alturas tiene suficientes datos
+    const heightData = this.getHeightData(this.heightMap.image);
 
-        for (let i = 0; i < positionAttribute.count; i++) {
-            const z = heightData[i] * this.terrainHeight;
-            positionAttribute.setZ(i, z);
-        }
-        positionAttribute.needsUpdate = true;
+    if (heightData.length !== (geometry.parameters.widthSegments + 1) * (geometry.parameters.heightSegments + 1)) {
+        console.error("El tamaño de heightData no coincide con la cantidad de vértices.");
+        return;
+    }
 
-        const material = new THREE.ShaderMaterial({
-            uniforms: {
-                grassTexture: { value: this.grassTexture },
-                dirtTexture: { value: this.dirtTexture },
-                heightScale: { value: this.terrainHeight }
-            },
-            vertexShader: `
-                varying float vHeight;
-                void main() {
-                    vHeight = position.z;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: `
-                uniform sampler2D grassTexture;
-                uniform sampler2D dirtTexture;
-                uniform float heightScale;
-                varying float vHeight;
-                void main() {
-                    float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
-                    vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
-                    vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
-                    gl_FragColor = mix(dirt, grass, factor);
-                }
-            `
-        });
+    for (let i = 0; i < positionAttribute.count; i++) {
+        const z = heightData[i] * this.terrainHeight;
+        positionAttribute.setZ(i, z);
+    }
+    positionAttribute.needsUpdate = true;
 
-        const terrain = new THREE.Mesh(geometry, material);
-        terrain.rotation.x = -Math.PI / 2;
-        this.scene.add(terrain);
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            grassTexture: { value: this.grassTexture },
+            dirtTexture: { value: this.dirtTexture },
+            heightScale: { value: this.terrainHeight }
+        },
+        vertexShader: `
+            varying float vHeight;
+            void main() {
+                vHeight = position.z;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform sampler2D grassTexture;
+            uniform sampler2D dirtTexture;
+            uniform float heightScale;
+            varying float vHeight;
+            void main() {
+                float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
+                vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
+                vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
+                gl_FragColor = mix(dirt, grass, factor);
+            }
+        `
+    });
+
+    const terrain = new THREE.Mesh(geometry, material);
+    terrain.rotation.x = -Math.PI / 2;
+    this.scene.add(terrain);
     }
 
     createGrass() {
