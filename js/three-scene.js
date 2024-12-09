@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
-import { ProceduralTerrain } from "./ground.js"; // Importar la función para crear el suelo
+import ProceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
 
-let scene, camera, renderer, cube, floor, robot, light, mixer;
+let scene, camera, renderer, cube, terrain, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
 const clock = new THREE.Clock();
@@ -38,9 +38,8 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   light = new THREE.PointLight(0xffffff, 1, 100);
   scene.add(light);
 
-  // Crear suelo usando `createFloor` desde ground.js
-  floor = createFloor();
-  scene.add(floor);
+  // Crear terreno procedural
+  terrain = new ProceduralTerrain(scene);
 
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
