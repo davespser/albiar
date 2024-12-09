@@ -10,182 +10,147 @@ const clock = new THREE.Clock();
 
 // Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
-  // Crear escena
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb);
+    // Crear escena
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
 
-  // Configurar cámara
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(x + 10, y + 5, z + 10);
-  camera.lookAt(x, y, z);
+    // Configurar cámara
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(x + 10, y + 5, z + 10);
+    camera.lookAt(x + 10, y + 5, z + 10);
 
-  // Configurar renderizador
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  document.body.innerHTML = ""; // Limpiar la interfaz anterior
-  document.body.appendChild(renderer.domElement);
+    // Configurar renderizador
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.body.innerHTML = ""; // Limpiar la interfaz anterior
+    document.body.appendChild(renderer.domElement);
 
-  // Agregar luces
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  scene.add(ambientLight);
+    // Agregar luces
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(10, 20, 10);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 20, 10);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
 
-  light = new THREE.PointLight(0xffffff, 1, 100);
-  scene.add(light);
+    light = new THREE.PointLight(0xffffff, 1, 100);
+    scene.add(light);
 
-  
-  
-  // Crear terreno procedural
-async function createTerrainMesh() {
-    // Crear instancia de ProceduralTerrain
-    const proceduralTerrain = new ProceduralTerrain(
-        256, // Resolución del mapa de alturas
-        200, // Tamaño del terreno
-        './js/textures/terrain1.jpg', // Textura 1
-        './js/textures/terrain2.jpg'  // Textura 2
-    );
+    // Crear terreno procedural
+    async function createTerrainMesh() {
+        const proceduralTerrain = new ProceduralTerrain(
+            256, // Resolución del mapa de alturas
+            200, // Tamaño del terreno
+            './js/textures/terrain1.jpg', // Textura de hierba
+            './js/textures/terrain2.jpg', // Textura de tierra
+            scene // Pasar la escena
+        );
 
-    // Inicializar y generar el terreno
-    await proceduralTerrain.init();
+        await proceduralTerrain.init();
+    }
 
-    // Crear geometría y material para el terreno
-    const geometry = new THREE.PlaneGeometry(
-        proceduralTerrain.size,
-        proceduralTerrain.size,
-        proceduralTerrain.heightMapSize - 1,
-        proceduralTerrain.heightMapSize - 1
-    );
+    createTerrainMesh();
 
-    // Material con textura generada por ProceduralTerrain
-    const material = new THREE.MeshLambertMaterial({
-        map: proceduralTerrain.exportTexture(),
+    // Crear cubo con specularMap
+    const textureLoader = new THREE.TextureLoader();
+    const specularMap = textureLoader.load("./js/Specularbox.png");
+
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshPhongMaterial({
+        color,
+        specular: 0xffffff,
+        shininess: 100,
+        specularMap,
     });
 
-    // Crear la malla del terreno
-    const terrain = new THREE.Mesh(geometry, material);
-    terrain.rotation.x = -Math.PI / 2; // Rotar para que quede horizontal
-    terrain.receiveShadow = true;
+    cube = new THREE.Mesh(geometry, material);
+    cube.position.set(x, y + 0.5, z);
+    cube.castShadow = true;
+    scene.add(cube);
 
-    // Añadir el terreno a la escena
-    scene.add(terrain);
-}
+    // Cargar modelo GLTF
+    const loader = new GLTFLoader();
+    loader.load(
+        "./models/npc/robotauro_walk.glb",
+        (gltf) => {
+            robot = gltf.scene;
+            robot.position.set(x, y + 2.5, z);
+            robot.scale.set(0.05, 0.05, 0.05);
+            robot.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                }
+            });
+            scene.add(robot);
 
-// Llamar a la función para generar el terreno al cargar la escena
-createTerrainMesh();
-
-  // Crear cubo con specularMap
-  const textureLoader = new THREE.TextureLoader();
-  const specularMap = textureLoader.load("./js/Specularbox.png");
-
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshPhongMaterial({
-    color,
-    specular: 0xffffff,
-    shininess: 100,
-    specularMap,
-  });
-
-  cube = new THREE.Mesh(geometry, material);
-  cube.position.set(x, y + 0.5, z);
-  cube.castShadow = true;
-  scene.add(cube);
-
-  // Cargar modelo GLTF
-  const loader = new GLTFLoader();
-  loader.load(
-    "./models/npc/robotauro_walk.glb",
-    (gltf) => {
-      robot = gltf.scene;
-      robot.position.set(x, y + 2.5, z);
-      robot.scale.set(0.05, 0.05, 0.05);
-      robot.traverse((child) => {
-        if (child.isMesh) {
-          child.castShadow = true;
+            // Configurar animaciones
+            mixer = new THREE.AnimationMixer(robot);
+            if (gltf.animations.length > 0) {
+                const walkAction = mixer.clipAction(gltf.animations[0]);
+                walkAction.play();
+            }
+        },
+        undefined,
+        (error) => {
+            console.error("Error al cargar el modelo: ", error);
         }
-      });
-      scene.add(robot);
+    );
 
-      // Configurar animaciones
-      mixer = new THREE.AnimationMixer(robot);
-      if (gltf.animations.length > 0) {
-        const walkAction = mixer.clipAction(gltf.animations[0]);
-        walkAction.play();
-      }
-    },
-    undefined,
-    (error) => {
-      console.error("Error al cargar el modelo: ", error);
-    }
-  );
+    // Configurar eventos de teclado
+    window.addEventListener("keydown", handleKeyDown);
 
-  // Configurar eventos de teclado para mover el cubo
-  window.addEventListener("keydown", handleKeyDown);
+    // Crear menú y joypad
+    createMenu();
+    createJoypad(cube, speed);
 
-  // Crear menú y joypad desde ui.js
-  createMenu();
-  createJoypad(cube, speed);
-
-  // Iniciar animación
-  animate();
+    // Iniciar animación
+    animate();
 }
 
 // Manejar teclas
 function handleKeyDown(event) {
-  if (!cube) return;
+    if (!cube) return;
 
-  switch (event.key) {
-    case "ArrowUp":
-      cube.position.z -= speed;
-      break;
-    case "ArrowDown":
-      cube.position.z += speed;
-      break;
-    case "ArrowLeft":
-      cube.position.x -= speed;
-      break;
-    case "ArrowRight":
-      cube.position.x += speed;
-      break;
-  }
+    switch (event.key) {
+        case "ArrowUp":
+            cube.position.z -= speed;
+            break;
+        case "ArrowDown":
+            cube.position.z += speed;
+            break;
+        case "ArrowLeft":
+            cube.position.x -= speed;
+            break;
+        case "ArrowRight":
+            cube.position.x += speed;
+            break;
+    }
 }
 
 // Animar la escena
 function animate() {
-  requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 
-  const delta = clock.getDelta(); // Tiempo transcurrido desde el último frame
+    const delta = clock.getDelta();
 
-  // Actualizar el mixer (animaciones)
-  if (mixer) mixer.update(delta);
+    if (mixer) mixer.update(delta);
 
-  // Actualizar posición del robot (si es necesario)
-  if (robot) {
-    robot.position.z -= speed / 2;
-    robot.rotation.y = Math.PI; // Ajustar orientación
-  }
+    if (cube) {
+        const desiredPosition = new THREE.Vector3().addVectors(cube.position, cameraOffset);
+        camera.position.lerp(desiredPosition, 0.1);
+        camera.lookAt(cube.position);
+    }
 
-  // Actualizar la posición de la cámara para seguir al cubo
-  if (cube) {
-    const desiredPosition = new THREE.Vector3().addVectors(cube.position, cameraOffset);
-    camera.position.lerp(desiredPosition, 0.1); // Suavizar movimiento de la cámara
-    camera.lookAt(cube.position); // La cámara siempre mira al cubo
-  }
+    light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
 
-  // Actualizar posición de la luz para que siga al cubo
-  light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
-
-  // Renderizar la escena
-  renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 export function unloadThreeScene() {
-  if (renderer) {
-    renderer.dispose();
-    document.body.innerHTML = ""; // Limpiar la interfaz
-  }
+    if (renderer) {
+        renderer.dispose();
+        document.body.innerHTML = "";
+    }
 }
