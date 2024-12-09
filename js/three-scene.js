@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
+let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
 const clock = new THREE.Clock();
 
 // Función para cargar la escena principal
