@@ -3,7 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
 import ProceduralTerrain from "./ground.js"; // Importar la clase para crear el terreno procedural
 
-let scene, camera, renderer, cube, terrain, robot, light, mixer;
+let scene, camera, renderer, cube, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
 const clock = new THREE.Clock();
@@ -17,7 +17,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(x + 10, y + 5, z + 10);
-  camera.lookAt(x + 10, y + 5, z + 10);
+  camera.lookAt(x, y, z);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -39,24 +39,14 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   scene.add(light);
 
   // Crear terreno procedural
-  const proceduralTerrain = new ProceduralTerrain(256, 200, './js/textures/terrain1.jpg', './js/textures/terrain2.jpg');
+  const proceduralTerrain = new ProceduralTerrain(scene, {
+    terrainSize: 2000, // Tamaño del terreno
+    terrainSegments: 256, // Segmentos del plano
+    grassTexture: './js/textures/terrain1.jpg',
+    dirtTexture: './js/textures/terrain2.jpg'
+  });
+  proceduralTerrain.create();
 
-// Crear malla de terreno
-async function createTerrainMesh() {
-    // Asegurarse de que las texturas se han cargado y el mapa procedural se ha generado
-    await proceduralTerrain.init();
-
-    // Obtener la textura generada
-    const terrainTexture = proceduralTerrain.exportTexture();
-
-    // Crear geometría y material del terreno
-    const geometry = new THREE.PlaneGeometry(proceduralTerrain.size, proceduralTerrain.size, 255, 255);
-    const material = new THREE.MeshLambertMaterial({ map: terrainTexture });
-
-    const terrain = new THREE.Mesh(geometry, material);
-    terrain.rotation.x = -Math.PI / 2;
-    scene.add(terrain);
-}
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
   const specularMap = textureLoader.load("./js/Specularbox.png");
