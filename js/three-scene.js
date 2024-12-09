@@ -1,15 +1,15 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
-// Variables globales
 let scene, camera, renderer, cube, floor, robot, light, mixer;
-let speed = 0.02; // Velocidad del cubo basada en la estadística "speed"
-let clock = new Three.Clock
+let speed = 0.02; // Velocidad inicial
+const clock = new THREE.Clock();
+
 // Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
   // Crear escena
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb); // Fondo azul cielo
+  scene.background = new THREE.Color(0x87ceeb);
 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -19,20 +19,19 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
   document.body.innerHTML = ""; // Limpiar la interfaz anterior
   document.body.appendChild(renderer.domElement);
 
-  // Agregar luz ambiental
+  // Agregar luces
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
-  // Agregar luz direccional
   const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
   directionalLight.position.set(10, 20, 10);
   directionalLight.castShadow = true;
   scene.add(directionalLight);
 
-  // Luz que sigue al cubo
   light = new THREE.PointLight(0xffffff, 1, 100);
   scene.add(light);
 
@@ -49,25 +48,22 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   floor.receiveShadow = true;
   scene.add(floor);
 
-  // Crear cubo con color del personaje
-  // Cargar las texturas
-const textureLoader = new THREE.TextureLoader();
-const specularMap = textureLoader.load('./js/Specularbox.png'); // Ruta del specularMap
+  // Crear cubo con specularMap
+  const textureLoader = new THREE.TextureLoader();
+  const specularMap = textureLoader.load("./js/Specularbox.png");
 
-// Crear geometría y material
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshPhongMaterial({
-  color,       // Color base del cubo
-  specular: 0xffffff,    // Color del reflejo especular
-  shininess: 100,        // Ajusta el brillo del reflejo especular
-  specularMap: specularMap, // Mapa especular
-});
+  const geometry = new THREE.BoxGeometry();
+  const material = new THREE.MeshPhongMaterial({
+    color,
+    specular: 0xffffff,
+    shininess: 100,
+    specularMap,
+  });
 
-// Crear el cubo y añadirlo a la escena
-cube = new THREE.Mesh(geometry, material);
-cube.position.set(x, y + 0.5, z);
-cube.castShadow = true;
-scene.add(cube);
+  cube = new THREE.Mesh(geometry, material);
+  cube.position.set(x, y + 0.5, z);
+  cube.castShadow = true;
+  scene.add(cube);
 
   // Cargar modelo GLTF
   const loader = new GLTFLoader();
@@ -76,64 +72,33 @@ scene.add(cube);
     (gltf) => {
       robot = gltf.scene;
       robot.position.set(x, y + 2.5, z);
-      robot.scale.set(0.05, 0.05, 0.05); // Ajusta la escala si es necesario
+      robot.scale.set(0.05, 0.05, 0.05);
+      robot.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+        }
+      });
       scene.add(robot);
-      THREE.AnimationMixer(robot);
-    const walkAction = mixer.clipAction(gltf.animations[0]); // Supongamos que la animación de caminar es la primera
-    walkAction.play(); // Reproducir la animación
-  
+
+      // Configurar animaciones
+      mixer = new THREE.AnimationMixer(robot);
+      if (gltf.animations.length > 0) {
+        const walkAction = mixer.clipAction(gltf.animations[0]);
+        walkAction.play();
+      }
     },
     undefined,
     (error) => {
       console.error("Error al cargar el modelo: ", error);
     }
   );
-  function animate() {
-  requestAnimationFrame(animate);
-
-  const delta = clock.getDelta(); // Tiempo transcurrido desde el último frame
-
-  // Actualizar el mixer (animaciones)
-  if (mixer) mixer.update(delta);
-
-  // Mover el modelo hacia adelante
-  if (robot) {
-    robot.position.z -= 0.05; // Cambia esta velocidad según lo necesites
-    robot.rotation.y = Math.PI; // Ajusta la orientación si es necesario
-  }
-
-  // Crear menú superpuesto
-  createMenu();
-
-  // Crear joypad
-  createJoypad();
-
-  // Mostrar estadísticas
-  const statsDiv = document.createElement("div");
-  statsDiv.style.position = "absolute";
-  statsDiv.style.top = "10px";
-  statsDiv.style.left = "10px";
-  statsDiv.style.color = "white";
-  statsDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
-  statsDiv.style.padding = "10px";
-  statsDiv.style.borderRadius = "10px";
-  statsDiv.style.fontFamily = "Arial, sans-serif";
-  statsDiv.innerHTML = `
-    <strong>Estadísticas del Personaje:</strong><br>
-    Ataque: ${stats.attack?.toFixed(1) || 0}<br>
-    Velocidad: ${stats.speed?.toFixed(1) || 0}<br>
-    Magia: ${stats.magic?.toFixed(1) || 0}<br>
-    Defensa: ${stats.defense?.toFixed(1) || 0}<br>
-    Precisión: ${stats.precision?.toFixed(1) || 0}<br>
-    Vitalidad: ${stats.vitality?.toFixed(1) || 0}<br>
-  `;
-  document.body.appendChild(statsDiv);
-
-  // Configurar la velocidad basada en la estadística "speed"
-  speed = stats.speed ? stats.speed / 100 : 0.5;
 
   // Configurar eventos de teclado para mover el cubo
   window.addEventListener("keydown", handleKeyDown);
+
+  // Crear menú y joypad
+  createMenu();
+  createJoypad();
 
   // Iniciar animación
   animate();
@@ -203,8 +168,10 @@ function createJoypad() {
 
     joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 20px), calc(50% + ${stickY}px - 20px))`;
 
-    cube.position.x += (stickX / maxRadius) * 0.05;
-    cube.position.z += (stickY / maxRadius) * 0.05;
+    if (cube) {
+      cube.position.x += (stickX / maxRadius) * speed;
+      cube.position.z += (stickY / maxRadius) * speed;
+    }
   });
 
   joypadBase.addEventListener("touchend", () => {
@@ -213,7 +180,10 @@ function createJoypad() {
   });
 }
 
+// Manejar teclas
 function handleKeyDown(event) {
+  if (!cube) return;
+
   switch (event.key) {
     case "ArrowUp":
       cube.position.z -= speed;
@@ -230,14 +200,27 @@ function handleKeyDown(event) {
   }
 }
 
+// Animar la escena
 function animate() {
   requestAnimationFrame(animate);
-  light.position.copy(cube.position).add(new THREE.Vector3(0, 0.7, 1));
-  light.lookAt(cube.position)
+
+  const delta = clock.getDelta();
+
+  if (mixer) mixer.update(delta);
+
+  if (robot) {
+    robot.position.z -= speed / 2; // Simula caminar hacia adelante
+    robot.rotation.y = Math.PI; // Ajusta orientación
+  }
+
+  if (cube) {
+    light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
+  }
+
   renderer.render(scene, camera);
-  
 }
 
+// Descargar la escena
 export function unloadThreeScene() {
   if (renderer) {
     renderer.dispose();
