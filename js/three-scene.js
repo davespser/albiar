@@ -50,17 +50,24 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   scene.add(floor);
 
   // Crear cubo con color del personaje
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshStandardMaterial({
-    color,
-    material.envMap = environmentMap;
-    metalness: 1,
-    roughness: 0.1,
-  });
-  cube = new THREE.Mesh(geometry, material);
-  cube.position.set(x, y + 0.5, z);
-  cube.castShadow = true;
-  scene.add(cube);
+  // Cargar las texturas
+const textureLoader = new THREE.TextureLoader();
+const specularMap = textureLoader.load('./js/Specularbox.png'); // Ruta del specularMap
+
+// Crear geometría y material
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshPhongMaterial({
+  color,       // Color base del cubo
+  specular: 0xffffff,    // Color del reflejo especular
+  shininess: 100,        // Ajusta el brillo del reflejo especular
+  specularMap: specularMap, // Mapa especular
+});
+
+// Crear el cubo y añadirlo a la escena
+cube = new THREE.Mesh(geometry, material);
+cube.position.set(x, y + 0.5, z);
+cube.castShadow = true;
+scene.add(cube);
 
   // Cargar modelo GLTF
   const loader = new GLTFLoader();
