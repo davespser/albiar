@@ -19,7 +19,7 @@ export function createFloor() {
   });
 
   // Crear geometría del terreno
-  const floorGeometry = new THREE.PlaneGeometry(400, 400, 2048, 2048); // Segmentos altos para un desplazamiento suave
+  const floorGeometry = new THREE.PlaneGeometry(400, 400, 2157, 2244); // Segmentos altos para un desplazamiento suave
 
   // Crear la malla
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
