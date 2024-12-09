@@ -1,10 +1,8 @@
 // ui.js
 
-let menuContainer, joypadBase, joypadStick;
-
 // Función para crear el menú
 export function createMenu() {
-  menuContainer = document.createElement("div");
+  const menuContainer = document.createElement("div");
   menuContainer.classList.add("menu-container");
   menuContainer.innerHTML = `
     <input type="checkbox" id="toggle" class="hidden-input">
@@ -16,72 +14,66 @@ export function createMenu() {
       <div class="menu-item" data-action="option4"><span>🔸</span> Opción 4</div>
     </div>`;
   document.body.appendChild(menuContainer);
-
-  // Agregar event listener para las opciones del menú
-  menuContainer.addEventListener("click", handleMenuClick);
-}
-
-// Función para manejar los clics en el menú
-function handleMenuClick(event) {
-  const action = event.target.dataset.action;
-  switch (action) {
-    case "option1":
-      console.log("Opción 1 seleccionada");
-      break;
-    case "option2":
-      console.log("Opción 2 seleccionada");
-      break;
-    case "option3":
-      console.log("Opción 3 seleccionada");
-      break;
-    case "option4":
-      console.log("Opción 4 seleccionada");
-      break;
-    default:
-      break;
-  }
 }
 
 // Función para crear el joypad
-export function createJoypad() {
-  joypadBase = document.createElement("div");
-  joypadBase.classList.add("joypad-base");
-  joypadBase.style.cssText = `
-    position: absolute;
-    bottom: 10%;
-    left: 5%;
-    width: 100px;
-    height: 100px;
-    border: 2px solid white;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    touch-action: none;`;
-
-  joypadStick = document.createElement("div");
-  joypadStick.classList.add("joypad-stick");
-  joypadStick.style.cssText = `
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border-radius: 50%;
-    transform: translate(30%, 30%);`;
-
-  joypadBase.appendChild(joypadStick);
+export function createJoypad(cube, speed) {
+  const joypadBase = document.createElement("div");
+  joypadBase.style.position = "absolute";
+  joypadBase.style.bottom = "10%";
+  joypadBase.style.left = "5%";
+  joypadBase.style.width = "100px";
+  joypadBase.style.height = "100px";
+  joypadBase.style.border = "2px solid white";
+  joypadBase.style.borderRadius = "50%";
+  joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
+  joypadBase.style.touchAction = "none";
   document.body.appendChild(joypadBase);
 
-  // Eventos para mover el joypad
-  joypadBase.addEventListener("touchstart", handleJoypadMove);
-  joypadBase.addEventListener("touchmove", handleJoypadMove);
-  joypadBase.addEventListener("touchend", resetJoypad);
-}
-
-// Función para manejar el movimiento del joypad
-function handleJoypadMove(event) {
-  console.log("Moviendo el joypad"); // Aquí puedes enlazarlo al movimiento del cubo o personaje
-}
-
-// Función para resetear el joypad
-function resetJoypad() {
+  const joypadStick = document.createElement("div");
+  joypadStick.style.position = "absolute";
+  joypadStick.style.width = "40px";
+  joypadStick.style.height = "40px";
+  joypadStick.style.background = "white";
+  joypadStick.style.borderRadius = "50%";
   joypadStick.style.transform = "translate(30%, 30%)";
+  joypadBase.appendChild(joypadStick);
+
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  const maxRadius = 50;
+
+  joypadBase.addEventListener("touchstart", (event) => {
+    isDragging = true;
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+
+  joypadBase.addEventListener("touchmove", (event) => {
+    if (!isDragging) return;
+
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxRadius);
+    const angle = Math.atan2(deltaY, deltaX);
+    const stickX = Math.cos(angle) * distance;
+    const stickY = Math.sin(angle) * distance;
+
+    joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 20px), calc(50% + ${stickY}px - 20px))`;
+
+    // Actualizar posición del cubo en función del joystick
+    if (cube) {
+      cube.position.x += (stickX / maxRadius) * speed;
+      cube.position.z += (stickY / maxRadius) * speed;
+    }
+  });
+
+  joypadBase.addEventListener("touchend", () => {
+    isDragging = false;
+    joypadStick.style.transform = "translate(30%, 30%)";
+  });
 }
