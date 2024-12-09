@@ -34,58 +34,57 @@ class ProceduralTerrain {
     }
 
     createTerrain() {
-    if (!this.heightMap || !this.heightMap.image) {
-        console.error("El mapa de altura no está cargado correctamente.");
-        return;
-    }
+        if (!this.heightMap || !this.heightMap.image) {
+            console.error("El mapa de altura no está cargado correctamente.");
+            return;
+        }
 
-    const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 255, 255); // Ajustado a 255 segmentos para 256 puntos
-    const positionAttribute = geometry.attributes.position;
+        const geometry = new THREE.PlaneGeometry(this.terrainSize, this.terrainSize, 255, 255); // Ajustado a 255 segmentos para 256 puntos
+        const positionAttribute = geometry.attributes.position;
 
-    // Verificar que el mapa de alturas tiene suficientes datos
-    const heightData = this.getHeightData(this.heightMap.image);
+        // Verificar que el mapa de alturas tiene suficientes datos
+        const heightData = this.getHeightData(this.heightMap.image);
 
-    if (heightData.length !== (geometry.parameters.widthSegments + 1) * (geometry.parameters.heightSegments + 1)) {
-        console.error("El tamaño de heightData no coincide con la cantidad de vértices.");
-        return;
-    }
+        if (heightData.length !== (geometry.parameters.widthSegments + 1) * (geometry.parameters.heightSegments + 1)) {
+            console.error("El tamaño de heightData no coincide con la cantidad de vértices.");
+            return;
+        }
 
-    for (let i = 0; i < positionAttribute.count; i++) {
-        const z = heightData[i] * this.terrainHeight;
-        positionAttribute.setZ(i, z);
-    }
-    positionAttribute.needsUpdate = true;
+        for (let i = 0; i < positionAttribute.count; i++) {
+            const z = heightData[i] * this.terrainHeight;
+            positionAttribute.setZ(i, z);
+        }
+        positionAttribute.needsUpdate = true;
 
-    const material = new THREE.ShaderMaterial({
-        uniforms: {
-            grassTexture: { value: this.grassTexture },
-            dirtTexture: { value: this.dirtTexture },
-            heightScale: { value: this.terrainHeight }
-        },
-        vertexShader: `
-            varying float vHeight;
-            void main() {
-                vHeight = position.z;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform sampler2D grassTexture;
-            uniform sampler2D dirtTexture;
-            uniform float heightScale;
-            varying float vHeight;
-            void main() {
-                float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
-                vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
-                vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
-                gl_FragColor = mix(dirt, grass, factor);
-            }
-        `
-    });
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                grassTexture: { value: this.grassTexture },
+                dirtTexture: { value heightScale: { value: this.terrainHeight }
+            },
+            vertexShader: `
+                varying float vHeight;
+                void main() {
+                    vHeight = position.z;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D grassTexture;
+                uniform sampler2D dirtTexture;
+                uniform float heightScale;
+                varying float vHeight;
+                void main() {
+                    float factor = smoothstep(0.0, heightScale * 0.5, vHeight);
+                    vec4 grass = texture2D(grassTexture, gl_FragCoord.xy / 1024.0);
+                    vec4 dirt = texture2D(dirtTexture, gl_FragCoord.xy / 1024.0);
+                    gl_FragColor = mix(dirt, grass, factor);
+                }
+            `
+        });
 
-    const terrain = new THREE.Mesh(geometry, material);
-    terrain.rotation.x = -Math.PI / 2;
-    this.scene.add(terrain);
+        const terrain = new THREE.Mesh(geometry, material);
+        terrain.rotation.x = -Math.PI / 2;
+        this.scene.add(terrain);
     }
 
     createGrass() {
@@ -94,57 +93,4 @@ class ProceduralTerrain {
         const colors = [];
 
         for (let i = 0; i < this.numGrassBlades; i++) {
-            const x = (Math.random() - 0.5) * this.terrainSize;
-            const z = (Math.random() - 0.5) * this.terrainSize;
-            const y = 0; // Colocar en la superficie
-
-            positions.push(x, y, z);
-            colors.push(0.3, 0.9, 0.3); // Verde hierba
-        }
-
-        grassGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        grassGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        const grassMaterial = new THREE.PointsMaterial({
-            size: 1.5,
-            vertexColors: true
-        });
-
-        const grass = new THREE.Points(grassGeometry, grassMaterial);
-        this.scene.add(grass);
-    }
-
-    addFog() {
-        this.scene.fog = new THREE.Fog(0xcccccc, 500, 2000);
-    }
-
-    getHeightData(image) {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-
-        const context = canvas.getContext('2d');
-        context.drawImage(image, 0, 0);
-
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const data = new Float32Array(imageData.width * imageData.height);
-
-        for (let i = 0; i < data.length; i++) {
-            data[i] = imageData.data[i * 4] / 255; // Usar el canal rojo (normalizar entre 0 y 1)
-        }
-
-        return data;
-    }
-
-    animate() {
-        requestAnimationFrame(() => this.animate());
-        this.updateWind();
-    }
-
-    updateWind() {
-        this.wind.intensity = Math.sin(Date.now() * 0.001) * 0.5 + 0.5; // Variación en intensidad
-        // Aquí puedes agregar lógica para mover hierba según el viento
-    }
-}
-
-export default ProceduralTerrain;
+            const x = (Math
