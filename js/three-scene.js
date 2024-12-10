@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TerrainMesh } from "../js/TerrainMesh.js";
+import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
 
 let scene, camera, renderer, cube, robot, light, mixer;
