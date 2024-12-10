@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js";
-import Ammo from "ammo";
+import Ammo from "https://cdn.jsdelivr.net/npm/ammo.js@0.0.10/builds/ammo.wasm.js";
 
 let scene, camera, renderer, cube, robot, light, mixer, physicsWorld, transform, cubeBody;
 let speed = 0.02; // Velocidad inicial
