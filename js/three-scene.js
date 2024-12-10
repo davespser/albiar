@@ -246,4 +246,5 @@ function animate() {
 
     if (mixer) mixer.update(delta);
 
-    renderer.render(scene, camera
+    renderer.render(scene, camera);
+}
