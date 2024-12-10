@@ -1,29 +1,30 @@
-// ui.js
+// Archivo: menu.js
 
-// Función para crear el menú
-export function createMenu() {
-  const menuContainer = document.createElement("div");
-  menuContainer.classList.add("menu-container");
-  menuContainer.innerHTML = `
-    <input type="checkbox" id="toggle" class="hidden-input">
-    <label for="toggle" class="menu-item"><span>🔸</span> Menú</label>
-    <div class="menu-content">
-      <div class="menu-item" data-action="option1"><span>🔸</span> Opción 1</div>
-      <div class="menu-item" data-action="option2"><span>🔸</span> Opción 2</div>
-      <div class="menu-item" data-action="option3"><span>🔸</span> Opción 3</div>
-      <div class="menu-item" data-action="option4"><span>🔸</span> Opción 4</div>
-    </div>`;
-  document.body.appendChild(menuContainer);
+// Crear el menú
+export function createMenu(options) {
+  // Implementa aquí si necesitas un menú interactivo en pantalla
+  // Ejemplo de placeholder:
+  const menuDiv = document.createElement("div");
+  menuDiv.style.position = "absolute";
+  menuDiv.style.top = "10px";
+  menuDiv.style.right = "10px";
+  menuDiv.style.color = "white";
+  menuDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  menuDiv.style.padding = "10px";
+  menuDiv.style.borderRadius = "10px";
+  menuDiv.style.fontFamily = "Arial, sans-serif";
+  menuDiv.innerHTML = "<strong>Menú Placeholder</strong>";
+  document.body.appendChild(menuDiv);
 }
 
-// Función para crear el joypad
-export function createJoypad(cube, speed) {
+// Crear el joypad
+export function createJoypad(onMove) {
   const joypadBase = document.createElement("div");
   joypadBase.style.position = "absolute";
-  joypadBase.style.bottom = "10%";
-  joypadBase.style.left = "5%";
-  joypadBase.style.width = "100px";
-  joypadBase.style.height = "100px";
+  joypadBase.style.bottom = `${window.innerHeight * 0.1}px`;
+  joypadBase.style.left = `${window.innerWidth * 0.05}px`;
+  joypadBase.style.width = `${window.innerWidth * 0.2}px`;
+  joypadBase.style.height = joypadBase.style.width;
   joypadBase.style.border = "2px solid white";
   joypadBase.style.borderRadius = "50%";
   joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
@@ -32,17 +33,16 @@ export function createJoypad(cube, speed) {
 
   const joypadStick = document.createElement("div");
   joypadStick.style.position = "absolute";
-  joypadStick.style.width = "40px";
-  joypadStick.style.height = "40px";
+  joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`;
+  joypadStick.style.height = joypadStick.style.width;
   joypadStick.style.background = "white";
   joypadStick.style.borderRadius = "50%";
-  joypadStick.style.transform = "translate(30%, 30%)";
+  joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
   joypadBase.appendChild(joypadStick);
 
   let isDragging = false;
   let startX = 0;
   let startY = 0;
-  const maxRadius = 50;
 
   joypadBase.addEventListener("touchstart", (event) => {
     isDragging = true;
@@ -53,27 +53,57 @@ export function createJoypad(cube, speed) {
 
   joypadBase.addEventListener("touchmove", (event) => {
     if (!isDragging) return;
-
     const touch = event.touches[0];
     const deltaX = touch.clientX - startX;
     const deltaY = touch.clientY - startY;
 
-    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxRadius);
+    const radius = parseFloat(joypadBase.style.width) / 2;
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), radius);
     const angle = Math.atan2(deltaY, deltaX);
+
     const stickX = Math.cos(angle) * distance;
     const stickY = Math.sin(angle) * distance;
+    joypadStick.style.transform = `translate(${stickX + radius}px, ${stickY + radius}px)`;
 
-    joypadStick.style.transform = `translate(calc(50% + ${stickX}px - 20px), calc(50% + ${stickY}px - 20px))`;
-
-    // Actualizar posición del cubo en función del joystick
-    if (cube) {
-      cube.position.x += (stickX / maxRadius) * speed;
-      cube.position.z += (stickY / maxRadius) * speed;
-    }
+    // Llama a la función de callback
+    onMove(stickX, stickY);
   });
 
   joypadBase.addEventListener("touchend", () => {
     isDragging = false;
-    joypadStick.style.transform = "translate(30%, 30%)";
+    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
   });
+
+  window.addEventListener("resize", () => {
+    joypadBase.style.bottom = `${window.innerHeight * 0.1}px`;
+    joypadBase.style.left = `${window.innerWidth * 0.05}px`;
+    joypadBase.style.width = `${window.innerWidth * 0.2}px`;
+    joypadBase.style.height = joypadBase.style.width;
+    joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`;
+    joypadStick.style.height = joypadStick.style.width;
+    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
+  });
+}
+
+// Crear estadísticas
+export function createStats(stats) {
+  const statsDiv = document.createElement("div");
+  statsDiv.style.position = "absolute";
+  statsDiv.style.top = "10px";
+  statsDiv.style.left = "10px";
+  statsDiv.style.color = "white";
+  statsDiv.style.backgroundColor = "rgba(0, 0, 0, 0.7)";
+  statsDiv.style.padding = "10px";
+  statsDiv.style.borderRadius = "10px";
+  statsDiv.style.fontFamily = "Arial, sans-serif";
+  statsDiv.innerHTML = `
+    <strong>Estadísticas del Personaje:</strong><br>
+    Ataque: ${stats.attack?.toFixed(1) || 0}<br>
+    Velocidad: ${stats.speed?.toFixed(1) || 0}<br>
+    Magia: ${stats.magic?.toFixed(1) || 0}<br>
+    Defensa: ${stats.defense?.toFixed(1) || 0}<br>
+    Precisión: ${stats.precision?.toFixed(1) || 0}<br>
+    Vitalidad: ${stats.vitality?.toFixed(1) || 0}<br>
+  `;
+  document.body.appendChild(statsDiv);
 }
