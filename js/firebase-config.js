@@ -1,11 +1,6 @@
-// Importa las funciones necesarias de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
-import {
-  getAuth,
-  setPersistence,
-  browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -23,12 +18,3 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 export const auth = getAuth(app);
-
-// Configura la persistencia de autenticación
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log("Persistencia de autenticación configurada correctamente.");
-  })
-  .catch((error) => {
-    console.error("Error al configurar la persistencia de autenticación:", error.message);
-  });
