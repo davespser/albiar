@@ -143,6 +143,37 @@ submitButton.addEventListener("click", async (event) => {
 renderQuestions();
 
 export function loadCharacterCreator(userId) {
-  console.log("Cargando creador de personaje para usuario:", userId);
-  renderQuestions();
+  document.body.innerHTML = `
+    <div id="character-creator">
+      <h1>¡Crea tu personaje!</h1>
+      <form id="character-form">
+        <label for="color">Color:</label>
+        <input type="color" id="color" value="#ff0000" />
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  `;
+
+  const form = document.getElementById("character-form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const color = document.getElementById("color").value;
+
+    // Guardar los datos del personaje en la base de datos
+    const userData = {
+      characterCreated: true,
+      color: color,
+      position: { x: 0, y: 0, z: 0 },
+      derivedStats: { speed: 10, strength: 5 } // Ejemplo de estadísticas
+    };
+
+    saveUserData(userId, userData);
+
+    // Cargar la escena del juego
+    loadThreeScene({
+      ...userData.position,
+      color: userData.color,
+      stats: userData.derivedStats
+    });
+  });
 }
