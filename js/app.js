@@ -31,6 +31,9 @@ function handleRegister() {
         characterCreated: false // Flag para verificar si completó el cuestionario
       };
       saveUserData(user.uid, initialData);
+
+      // Cargar el creador de personajes después de registro
+      loadCharacterCreator(user.uid);
     })
     .catch((error) => {
       console.error("Error al registrar usuario:", error.message);
