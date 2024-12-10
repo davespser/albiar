@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js";
-import * as CANNON from "cannon-es";
 
 let scene, camera, renderer, cube, robot, light, mixer, world, cubeBody;
 let speed = 0.02; // Velocidad inicial
