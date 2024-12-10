@@ -161,6 +161,26 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
 
     cubeBody = addPhysicalCube(cube);
 
+// Agregar eventos táctiles aquí
+let touchStartX, touchStartY;
+
+window.addEventListener("touchstart", (event) => {
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+});
+
+window.addEventListener("touchmove", (event) => {
+    if (!cube) return;
+
+    const deltaX = event.touches[0].clientX - touchStartX;
+    const deltaY = event.touches[0].clientY - touchStartY;
+
+    cube.position.x += deltaX * 0.01;
+    cube.position.z -= deltaY * 0.01;
+
+    touchStartX = event.touches[0].clientX;
+    touchStartY = event.touches[0].clientY;
+});
     // Modelo GLTF
     const loader = new GLTFLoader();
     loader.load(
