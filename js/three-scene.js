@@ -106,10 +106,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   animate();
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-}
+
 
 // Manejar teclas
 function handleKeyDown(event) {
