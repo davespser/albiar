@@ -102,21 +102,25 @@ function loadUserData(userId) {
       console.error("Error al cargar los datos del usuario:", error.message);
     });
 }
-
-// Escuchar el estado de autenticación
-
 onAuthStateChanged(auth, (user) => {
+  const appContainer = document.getElementById("app-container");
+
   if (user) {
     console.log("Sesión activa con usuario:", user);
 
-    // Cargar datos del usuario e iniciar la escena o el creador de personajes
+    // Limpiar contenido previo y cargar datos del usuario
+    appContainer.innerHTML = "";
     loadUserData(user.uid);
   } else {
     console.log("No hay ningún usuario conectado.");
-    unloadThreeScene(); // Desmontar la escena si no hay usuario
-    document.body.innerHTML = "<h1>Inicie sesión o regístrese</h1>"; // Mostrar mensaje
+
+    // Mostrar mensaje de inicio de sesión
+    appContainer.innerHTML = "<h1>Inicie sesión o regístrese</h1>";
+    unloadThreeScene();
   }
 });
+// Escuchar el estado de autenticación
+
 
 // Exportar funciones para usarlas en el HTML
 window.handleRegister = handleRegister;
