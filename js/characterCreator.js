@@ -97,9 +97,17 @@ function calculateCharacterData(r, g, b) {
   };
 }
 
+submitButton.addEventListener("touchend", async (event) => {
+  event.preventDefault();
+  handleSubmit();
+});
+
 submitButton.addEventListener("click", async (event) => {
   event.preventDefault();
+  handleSubmit();
+});
 
+function handleSubmit() {
   const answers = questions.map((_, index) => {
     const value = parseInt(document.getElementById(`question-${index}`).value, 10) || 1;
     return Math.min(Math.max(value, 1), 5);
@@ -133,7 +141,7 @@ submitButton.addEventListener("click", async (event) => {
       alert("No se encontró un usuario autenticado.");
     }
   });
-});
+}
 
 // Renderizar el cuestionario al cargar la página
 export function loadCharacterCreator(userId) {
