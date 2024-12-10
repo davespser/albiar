@@ -18,13 +18,13 @@ export function createMenu(options) {
 }
 
 // Crear el joypad
-export function createJoypad(onMove) {
+export function createJoypad(onMoveCallback) {
   const joypadBase = document.createElement("div");
   joypadBase.style.position = "absolute";
-  joypadBase.style.bottom = `${window.innerHeight * 0.1}px`;
-  joypadBase.style.left = `${window.innerWidth * 0.05}px`;
-  joypadBase.style.width = `${window.innerWidth * 0.2}px`;
-  joypadBase.style.height = joypadBase.style.width;
+  joypadBase.style.bottom = "10%";
+  joypadBase.style.left = "5%";
+  joypadBase.style.width = "150px";
+  joypadBase.style.height = "150px";
   joypadBase.style.border = "2px solid white";
   joypadBase.style.borderRadius = "50%";
   joypadBase.style.background = "rgba(255, 255, 255, 0.2)";
@@ -33,55 +33,45 @@ export function createJoypad(onMove) {
 
   const joypadStick = document.createElement("div");
   joypadStick.style.position = "absolute";
-  joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`;
-  joypadStick.style.height = joypadStick.style.width;
+  joypadStick.style.width = "60px";
+  joypadStick.style.height = "60px";
   joypadStick.style.background = "white";
   joypadStick.style.borderRadius = "50%";
-  joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
+  joypadStick.style.transform = "translate(45px, 45px)"; // Centrar en el joypad
   joypadBase.appendChild(joypadStick);
 
   let isDragging = false;
-  let startX = 0;
-  let startY = 0;
+  let centerX = 75; // Centro del joypad
+  let centerY = 75;
 
   joypadBase.addEventListener("touchstart", (event) => {
     isDragging = true;
     const touch = event.touches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
+    centerX = touch.clientX;
+    centerY = touch.clientY;
   });
 
   joypadBase.addEventListener("touchmove", (event) => {
     if (!isDragging) return;
+
     const touch = event.touches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
+    const deltaX = touch.clientX - centerX;
+    const deltaY = touch.clientY - centerY;
 
-    const radius = parseFloat(joypadBase.style.width) / 2;
-    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), radius);
+    const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), 75);
     const angle = Math.atan2(deltaY, deltaX);
+    const stickX = Math.cos(angle) * distance / 75; // Normalizado entre -1 y 1
+    const stickY = Math.sin(angle) * distance / 75;
 
-    const stickX = Math.cos(angle) * distance;
-    const stickY = Math.sin(angle) * distance;
-    joypadStick.style.transform = `translate(${stickX + radius}px, ${stickY + radius}px)`;
+    joypadStick.style.transform = `translate(${stickX * 75 + 45}px, ${stickY * 75 + 45}px)`;
 
-    // Llama a la función de callback
-    onMove(stickX, stickY);
+    if (onMoveCallback) onMoveCallback(stickX, -stickY); // Invertir eje Y para correspondencia lógica
   });
 
   joypadBase.addEventListener("touchend", () => {
     isDragging = false;
-    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
-  });
-
-  window.addEventListener("resize", () => {
-    joypadBase.style.bottom = `${window.innerHeight * 0.1}px`;
-    joypadBase.style.left = `${window.innerWidth * 0.05}px`;
-    joypadBase.style.width = `${window.innerWidth * 0.2}px`;
-    joypadBase.style.height = joypadBase.style.width;
-    joypadStick.style.width = `${parseFloat(joypadBase.style.width) * 0.4}px`;
-    joypadStick.style.height = joypadStick.style.width;
-    joypadStick.style.transform = `translate(${parseFloat(joypadBase.style.width) * 0.3}px, ${parseFloat(joypadBase.style.width) * 0.3}px)`;
+    joypadStick.style.transform = "translate(45px, 45px)"; // Resetear a posición inicial
+    if (onMoveCallback) onMoveCallback(0, 0); // Detener movimiento
   });
 }
 
