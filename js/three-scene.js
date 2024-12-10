@@ -184,6 +184,13 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     animate();
 }
 
+export function unloadThreeScene() {
+    if (renderer) {
+        renderer.dispose();
+        document.body.innerHTML = ""; // Limpiar la interfaz
+    }
+}
+
 function updatePhysics(deltaTime) {
     if (!world) return;
 
