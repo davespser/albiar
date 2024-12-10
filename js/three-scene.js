@@ -2,12 +2,28 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
-import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
-let scene, camera, renderer, cube, floor, robot, light, mixer;
+let scene, camera, renderer, cube, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
 const clock = new THREE.Clock();
+
+// Definir los vértices e índices para el terreno
+const vertices = [
+    -1.0, -1.0, 0.0,
+     1.0, -1.0, 0.0,
+     1.0,  1.0, 0.0,
+    -1.0,  1.0, 0.0
+];
+const indices = [
+    0, 1, 2,
+    2, 3, 0
+];
+
+// Crear malla de terreno
+function createTerrainMesh(vertices, indices) {
+    return TerrainMesh.create(vertices, indices);
+}
 
 // Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
@@ -39,10 +55,9 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   light = new THREE.PointLight(0xffffff, 1, 100);
   scene.add(light);
 
-  // Crear suelo usando `createFloor` desde ground.js
-  createTerrainMesh(vertices, indices) {
-    return TerrainMesh.create(vertices, indices);
-  }
+  // Crear malla de terreno y agregar a la escena
+  const terrain = createTerrainMesh(vertices, indices);
+  scene.add(terrain);
 
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
