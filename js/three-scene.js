@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TerrainMesh } from "../terrain2/TerrainMesh.js";
+import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
 import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
@@ -40,8 +40,9 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   scene.add(light);
 
   // Crear suelo usando `createFloor` desde ground.js
-  floor = createFloor();
-  scene.add(floor);
+  createTerrainMesh(vertices, indices) {
+    return TerrainMesh.create(vertices, indices);
+  }
 
   // Crear cubo con specularMap
   const textureLoader = new THREE.TextureLoader();
