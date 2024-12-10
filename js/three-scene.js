@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { createMenu, createJoypad } from "./ui.js"; // Importar funciones de interfaz
+import { createMenu, createJoypad, createStats} from "./ui.js"; // Importar funciones de interfaz
 import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
@@ -91,11 +91,24 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   window.addEventListener("keydown", handleKeyDown);
 
   // Crear menú y joypad desde ui.js
-  createMenu();
-  createJoypad(cube, speed);
+  // Crear joypad
+  createJoypad((stickX, stickY) => {
+    cube.position.x += stickX * 0.01;
+    cube.position.z += stickY * 0.01;
+  });
 
-  // Iniciar animación
+  // Crear estadísticas
+  createStats(stats);
+
+  // Crear menú
+  createMenu();
+
   animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
 }
 
 // Manejar teclas
