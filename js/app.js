@@ -1,4 +1,3 @@
-// Importa las funciones necesarias
 import { auth, database } from "./firebase-config.js";
 import {
   createUserWithEmailAndPassword,
@@ -6,11 +5,7 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
-import {
-  ref,
-  get,
-  set
-} from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
+import { ref, get, set } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
 import { loadThreeScene, unloadThreeScene } from "./three-scene.js";
 import { loadCharacterCreator } from "./characterCreator.js";
 
@@ -82,45 +77,44 @@ function loadUserData(userId) {
         const userData = snapshot.val();
         console.log("Datos del usuario cargados:", userData);
 
-        // Verificar si ya completó el cuestionario de creación de personaje
         if (!userData.characterCreated) {
-          console.log("Cargando creador de personaje...");
+          console.log("El usuario no ha creado un personaje. Cargando creador de personajes...");
           loadCharacterCreator(userId);
         } else {
           console.log("Cargando escena principal...");
           loadThreeScene({
             ...userData.position,
-            color: userData.color,
-            stats: userData.derivedStats // Usar las estadísticas calculadas previamente
+            color: userData.color || "#ff0000", // Color por defecto
+            stats: userData.derivedStats || {}
           });
         }
       } else {
-        console.log("No se encontraron datos para este usuario.");
+        console.log("No se encontraron datos para este usuario. Creando datos iniciales...");
+        const initialData = {
+          level: 1,
+          position: { x: 0, y: 0, z: 0 },
+          characterCreated: false
+        };
+        saveUserData(userId, initialData);
+        loadCharacterCreator(userId);
       }
     })
     .catch((error) => {
       console.error("Error al cargar los datos del usuario:", error.message);
     });
 }
-onAuthStateChanged(auth, (user) => {
-  const appContainer = document.getElementById("app-container");
 
+// Escuchar el estado de autenticación
+onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Sesión activa con usuario:", user);
-
-    // Limpiar contenido previo y cargar datos del usuario
-    appContainer.innerHTML = "";
     loadUserData(user.uid);
   } else {
     console.log("No hay ningún usuario conectado.");
-
-    // Mostrar mensaje de inicio de sesión
-    appContainer.innerHTML = "<h1>Inicie sesión o regístrese</h1>";
-    unloadThreeScene();
+    unloadThreeScene(); // Desmontar la escena si no hay usuario
+    document.body.innerHTML = "<h1>Inicie sesión o regístrese</h1>"; // Mostrar mensaje
   }
 });
-// Escuchar el estado de autenticación
-
 
 // Exportar funciones para usarlas en el HTML
 window.handleRegister = handleRegister;
