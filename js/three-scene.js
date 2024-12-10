@@ -164,10 +164,10 @@ function handleKeyDown(event) {
 
     switch (event.key) {
         case "ArrowUp":
-            cube.position.z -= speed;
+            cube.position.z += speed;
             break;
         case "ArrowDown":
-            cube.position.z += speed;
+            cube.position.z -= speed;
             break;
         case "ArrowLeft":
             cube.position.x -= speed;
