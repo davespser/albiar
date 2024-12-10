@@ -3,12 +3,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebas
 
 // Configuración de Firebase
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH_DOMAIN",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_STORAGE_BUCKET",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID",
+    apiKey: "AIzaSyDhzxutPaa1OxXDe2d4T5pNxGkNsrdlifs",
+  authDomain: "database-02549z.firebaseapp.com",
+  databaseURL: "https://database-02549z-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "database-02549z",
+  storageBucket: "database-02549z.appspot.com",
+  messagingSenderId: "970508003334",
+  appId: "1:970508003334:web:bf44e95b6c34b369d7bb87",
+  measurementId: "G-VW9QXZQ6CW",
 };
 
 const app = initializeApp(firebaseConfig);
