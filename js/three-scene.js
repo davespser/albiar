@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
-import { createMenu, createJoypad, createStats } from "./ui.js"; // Interfaz personalizada
+import { createMenu, createJoypad, createStats } from "./ui.js";
+import Ammo from "ammo.js";
 
-let scene, camera, renderer, cube, robot, light, mixer;
+let scene, camera, renderer, cube, robot, light, mixer, physicsWorld, transform, cubeBody;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
 const clock = new THREE.Clock();
@@ -53,8 +54,63 @@ function createTerrainMesh(vertices, indices) {
     return TerrainMesh.create(vertices, indices);
 }
 
+function initPhysics() {
+    const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+    const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+    const overlappingPairCache = new Ammo.btDbvtBroadphase();
+    const solver = new Ammo.btSequentialImpulseConstraintSolver();
+
+    physicsWorld = new Ammo.btDiscreteDynamicsWorld(
+        dispatcher,
+        overlappingPairCache,
+        solver,
+        collisionConfiguration
+    );
+    physicsWorld.setGravity(new Ammo.btVector3(0, -9.8, 0)); // Gravedad
+
+    transform = new Ammo.btTransform();
+}
+
+function addPhysicalTerrain(terrain) {
+    const shape = new Ammo.btBvhTriangleMeshShape(
+        terrain.geometry.attributes.position.array,
+        true
+    );
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+
+    const motionState = new Ammo.btDefaultMotionState(transform);
+
+    const localInertia = new Ammo.btVector3(0, 0, 0);
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, shape, localInertia);
+    const body = new Ammo.btRigidBody(rbInfo);
+
+    physicsWorld.addRigidBody(body);
+}
+
+function addPhysicalCube(cube) {
+    const shape = new Ammo.btBoxShape(new Ammo.btVector3(0.5, 0.5, 0.5));
+
+    const transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(cube.position.x, cube.position.y, cube.position.z));
+
+    const motionState = new Ammo.btDefaultMotionState(transform);
+
+    const mass = 1; // Masa del cubo
+    const localInertia = new Ammo.btVector3(0, 0, 0);
+    shape.calculateLocalInertia(mass, localInertia);
+
+    const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
+    const body = new Ammo.btRigidBody(rbInfo);
+
+    physicsWorld.addRigidBody(body);
+
+    return body; // Devuelve el cuerpo físico
+}
+
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
-    // Configuración básica
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
 
@@ -86,23 +142,20 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     const { vertices, indices } = terrainGenerator.generate();
     const terrain = createTerrainMesh(vertices, indices);
     scene.add(terrain);
+    addPhysicalTerrain(terrain);
 
     // Cubo con propiedades del usuario
-    const textureLoader = new THREE.TextureLoader();
-    const specularMap = textureLoader.load("./js/Specularbox.png");
-
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshPhongMaterial({
         color,
-        specular: 0xffffff,
-        shininess: 100,
-        specularMap,
     });
 
     cube = new THREE.Mesh(geometry, material);
     cube.position.set(x, y + 0.5, z);
     cube.castShadow = true;
     scene.add(cube);
+
+    cubeBody = addPhysicalCube(cube);
 
     // Modelo GLTF
     const loader = new GLTFLoader();
@@ -131,10 +184,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
         }
     );
 
-    // Controles
-    window.addEventListener("keydown", handleKeyDown);
-
-    // Interfaz
     createJoypad((stickX, stickY) => {
         if (cube) {
             cube.position.x += stickX * 0.1;
@@ -144,25 +193,25 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     createStats(stats);
     createMenu();
 
+    initPhysics(); // Inicializar físicas
     animate();
 }
 
-function handleKeyDown(event) {
-    if (!cube) return;
+function updatePhysics(deltaTime) {
+    if (!physicsWorld) return;
 
-    switch (event.key) {
-        case "ArrowUp":
-            cube.position.z += speed;
-            break;
-        case "ArrowDown":
-            cube.position.z -= speed;
-            break;
-        case "ArrowLeft":
-            cube.position.x -= speed;
-            break;
-        case "ArrowRight":
-            cube.position.x += speed;
-            break;
+    physicsWorld.stepSimulation(deltaTime, 10);
+
+    if (cube && cubeBody) {
+        const motionState = cubeBody.getMotionState();
+        if (motionState) {
+            motionState.getWorldTransform(transform);
+
+            const origin = transform.getOrigin();
+            const rotation = transform.getRotation();
+            cube.position.set(origin.x(), origin.y(), origin.z());
+            cube.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
+        }
     }
 }
 
@@ -170,27 +219,9 @@ function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
+    updatePhysics(delta);
+
     if (mixer) mixer.update(delta);
 
-    if (robot) {
-        robot.position.z -= speed / 2;
-        robot.rotation.y = Math.PI;
-    }
-
-    if (cube) {
-        const desiredPosition = new THREE.Vector3().addVectors(cube.position, cameraOffset);
-        camera.position.lerp(desiredPosition, 0.1);
-        camera.lookAt(cube.position);
-    }
-
-    light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
-
     renderer.render(scene, camera);
-}
-
-export function unloadThreeScene() {
-    if (renderer) {
-        renderer.dispose();
-        document.body.innerHTML = "";
-    }
 }
