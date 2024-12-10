@@ -10,6 +10,13 @@ if (typeof Ammo === "undefined") {
     Ammo().then((AmmoLib) => {
         // Código usando Ammo.js
         console.log("Ammo.js inicializado", AmmoLib);
+
+        initPhysics(); // Inicializar físicas
+
+        // Demás código que depende de Ammo.js
+    });
+}
+
 let scene, camera, renderer, cube, robot, light, mixer, physicsWorld, transform, cubeBody;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
@@ -163,95 +170,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
 
     cubeBody = addPhysicalCube(cube);
 
-// Agregar eventos táctiles aquí
-let touchStartX, touchStartY;
-
-window.addEventListener("touchstart", (event) => {
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-});
-
-window.addEventListener("touchmove", (event) => {
-    if (!cube) return;
-
-    const deltaX = event.touches[0].clientX - touchStartX;
-    const deltaY = event.touches[0].clientY - touchStartY;
-
-    cube.position.x += deltaX * 0.01;
-    cube.position.z -= deltaY * 0.01;
-
-    touchStartX = event.touches[0].clientX;
-    touchStartY = event.touches[0].clientY;
-});
-    // Modelo GLTF
-    const loader = new GLTFLoader();
-    loader.load(
-        "./models/npc/robotauro_walk.glb",
-        (gltf) => {
-            robot = gltf.scene;
-            robot.position.set(x, y + 2.5, z);
-            robot.scale.set(0.05, 0.05, 0.05);
-            robot.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                }
-            });
-            scene.add(robot);
-
-            mixer = new THREE.AnimationMixer(robot);
-            if (gltf.animations.length > 0) {
-                const walkAction = mixer.clipAction(gltf.animations[0]);
-                walkAction.play();
-            }
-        },
-        undefined,
-export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(x + 10, y + 5, z + 10);
-    camera.lookAt(x, y, z);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-
-    document.body.innerHTML = ""; // Limpiar DOM
-    document.body.appendChild(renderer.domElement);
-
-    // Luces
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 20, 10);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
-
-    light = new THREE.PointLight(0xffffff, 1, 100);
-    scene.add(light);
-
-    // Terreno procedural
-    const terrainGenerator = new TerrainGenerator(64, 100, 100);
-    const { vertices, indices } = terrainGenerator.generate();
-    const terrain = createTerrainMesh(vertices, indices);
-    scene.add(terrain);
-    addPhysicalTerrain(terrain);
-
-    // Cubo con propiedades del usuario
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshPhongMaterial({
-        color,
-    });
-
-    cube = new THREE.Mesh(geometry, material);
-    cube.position.set(x, y + 0.5, z);
-    cube.castShadow = true;
-    scene.add(cube);
-
-    cubeBody = addPhysicalCube(cube);
-
     // Eventos táctiles
     let touchStartX, touchStartY;
 
@@ -309,7 +227,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     createStats(stats);
     createMenu();
 
-    initPhysics(); // Inicializar físicas
     animate();
 }
 
@@ -321,23 +238,4 @@ function updatePhysics(deltaTime) {
     if (cube && cubeBody) {
         const motionState = cubeBody.getMotionState();
         if (motionState) {
-            motionState.getWorldTransform(transform);
-
-            const origin = transform.getOrigin();
-            const rotation = transform.getRotation();
-            cube.position.set(origin.x(), origin.y(), origin.z());
-            cube.quaternion.set(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        }
-    }
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-
-    const delta = clock.getDelta();
-    updatePhysics(delta);
-
-    if (mixer) mixer.update(delta);
-
-    renderer.render(scene, camera);
-}
+            motionState[43dcd9a7-70db-4a1f-b0ae-981daa162054](https://github.com/nimigolf/nimigolf.github.io/tree/23fbb4aa8c4201fffa39c0baab639717275b0063/script3000.js?citationMarker=43dcd9a7-70db-4a1f-b0ae-981daa162054 "1")
