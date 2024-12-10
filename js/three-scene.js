@@ -2,12 +2,14 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js";
-import Ammo from "ammo";
 
-Ammo().then((AmmoLib) => {
-    // Código usando Ammo.js
-    console.log("Ammo.js inicializado", AmmoLib);
-});
+// Asegúrate de que Ammo se carga correctamente
+if (typeof Ammo === "undefined") {
+    console.error("Ammo.js no se ha cargado correctamente. Verifica tu importmap o la conexión con la CDN.");
+} else {
+    Ammo().then((AmmoLib) => {
+        // Código usando Ammo.js
+        console.log("Ammo.js inicializado", AmmoLib);
 let scene, camera, renderer, cube, robot, light, mixer, physicsWorld, transform, cubeBody;
 let speed = 0.02; // Velocidad inicial
 let cameraOffset = new THREE.Vector3(0, 5, 10); // Offset de la cámara detrás del cubo
