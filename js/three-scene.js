@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { createMenu, createJoypad, createStats} from "./ui.js"; // Importar funciones de interfaz
+import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
 import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
 let scene, camera, renderer, cube, floor, robot, light, mixer;
@@ -17,7 +17,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   // Configurar cámara
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.set(x + 10, y + 5, z + 10);
-  camera.lookAt(x + 10, y + 5, z + 10);
+  camera.lookAt(x, y, z);
 
   // Configurar renderizador
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -91,10 +91,11 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
   window.addEventListener("keydown", handleKeyDown);
 
   // Crear menú y joypad desde ui.js
-  // Crear joypad
   createJoypad((stickX, stickY) => {
-    cube.position.x += stickX * 0.01;
-    cube.position.z += stickY * 0.01;
+    if (cube) {
+      cube.position.x += stickX * 0.1; // Ajusta la sensibilidad del movimiento
+      cube.position.z += stickY * 0.1;
+    }
   });
 
   // Crear estadísticas
@@ -105,8 +106,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
 
   animate();
 }
-
-
 
 // Manejar teclas
 function handleKeyDown(event) {
