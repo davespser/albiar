@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { TerrainMesh } from "../js/terrain2/TerrainMesh.js";
-import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
+import { createMenu, createJoypad, createStats } from "./ui.js"; // Interfaz personalizada
 
 let scene, camera, renderer, cube, robot, light, mixer;
 let speed = 0.02; // Velocidad inicial
@@ -16,7 +16,6 @@ class TerrainGenerator {
     }
 
     generateHeight(x, z) {
-        // Aquí puedes implementar tu propia lógica para generar alturas
         return Math.sin(x * z);
     }
 
@@ -24,7 +23,6 @@ class TerrainGenerator {
         const vertices = [];
         const indices = [];
 
-        // Generate vertices
         for (let y = 0; y <= this.segments; y++) {
             for (let x = 0; x <= this.segments; x++) {
                 const xPos = (x / this.segments - 0.5) * this.width;
@@ -35,7 +33,6 @@ class TerrainGenerator {
             }
         }
 
-        // Generate indices
         for (let y = 0; y < this.segments; y++) {
             for (let x = 0; x < this.segments; x++) {
                 const a = x + (this.segments + 1) * y;
@@ -52,30 +49,27 @@ class TerrainGenerator {
     }
 }
 
-// Crear malla de terreno
 function createTerrainMesh(vertices, indices) {
     return TerrainMesh.create(vertices, indices);
 }
 
-// Función para cargar la escena principal
 export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = {} }) {
-    // Crear escena
+    // Configuración básica
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87ceeb);
 
-    // Configurar cámara
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(x + 10, y + 5, z + 10);
     camera.lookAt(x, y, z);
 
-    // Configurar renderizador
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    document.body.innerHTML = ""; // Limpiar la interfaz anterior
+
+    document.body.innerHTML = ""; // Limpiar DOM
     document.body.appendChild(renderer.domElement);
 
-    // Agregar luces
+    // Luces
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
@@ -87,13 +81,13 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     light = new THREE.PointLight(0xffffff, 1, 100);
     scene.add(light);
 
-    // Crear terreno procedural
-    const terrainGenerator = new TerrainGenerator(64, 100, 100); // Ajusta los valores según tus necesidades
+    // Terreno procedural
+    const terrainGenerator = new TerrainGenerator(64, 100, 100);
     const { vertices, indices } = terrainGenerator.generate();
     const terrain = createTerrainMesh(vertices, indices);
     scene.add(terrain);
 
-    // Crear cubo con specularMap
+    // Cubo con propiedades del usuario
     const textureLoader = new THREE.TextureLoader();
     const specularMap = textureLoader.load("./js/Specularbox.png");
 
@@ -110,7 +104,7 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
     cube.castShadow = true;
     scene.add(cube);
 
-    // Cargar modelo GLTF
+    // Modelo GLTF
     const loader = new GLTFLoader();
     loader.load(
         "./models/npc/robotauro_walk.glb",
@@ -125,7 +119,6 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
             });
             scene.add(robot);
 
-            // Configurar animaciones
             mixer = new THREE.AnimationMixer(robot);
             if (gltf.animations.length > 0) {
                 const walkAction = mixer.clipAction(gltf.animations[0]);
@@ -138,27 +131,22 @@ export function loadThreeScene({ x = 0, y = 0, z = 0, color = 0xff4500, stats = 
         }
     );
 
-    // Configurar eventos de teclado para mover el cubo
+    // Controles
     window.addEventListener("keydown", handleKeyDown);
 
-    // Crear menú y joypad desde ui.js
+    // Interfaz
     createJoypad((stickX, stickY) => {
         if (cube) {
-            cube.position.x += stickX * 0.1; // Ajusta la sensibilidad del movimiento
+            cube.position.x += stickX * 0.1;
             cube.position.z += stickY * 0.1;
         }
     });
-
-    // Crear estadísticas
     createStats(stats);
-
-    // Crear menú
     createMenu();
 
     animate();
 }
 
-// Manejar teclas
 function handleKeyDown(event) {
     if (!cube) return;
 
@@ -178,38 +166,31 @@ function handleKeyDown(event) {
     }
 }
 
-// Animar la escena
 function animate() {
     requestAnimationFrame(animate);
 
-    const delta = clock.getDelta(); // Tiempo transcurrido desde el último frame
-
-    // Actualizar el mixer (animaciones)
+    const delta = clock.getDelta();
     if (mixer) mixer.update(delta);
 
-    // Actualizar posición del robot (si es necesario)
     if (robot) {
         robot.position.z -= speed / 2;
-        robot.rotation.y = Math.PI; // Ajustar orientación
+        robot.rotation.y = Math.PI;
     }
 
-    // Actualizar la posición de la cámara para seguir al cubo
     if (cube) {
         const desiredPosition = new THREE.Vector3().addVectors(cube.position, cameraOffset);
-        camera.position.lerp(desiredPosition, 0.1); // Suavizar movimiento de la cámara
-        camera.lookAt(cube.position); // La cámara siempre mira al cubo
+        camera.position.lerp(desiredPosition, 0.1);
+        camera.lookAt(cube.position);
     }
 
-    // Actualizar posición de la luz para que siga al cubo
     light.position.copy(cube.position).add(new THREE.Vector3(0, 2, 0));
 
-    // Renderizar la escena
     renderer.render(scene, camera);
 }
 
 export function unloadThreeScene() {
     if (renderer) {
         renderer.dispose();
-        document.body.innerHTML = ""; // Limpiar la interfaz
+        document.body.innerHTML = "";
     }
 }
