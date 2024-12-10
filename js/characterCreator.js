@@ -104,10 +104,7 @@ submitButton.addEventListener("touchend", async (event) => {
 
 submitButton.addEventListener("click", async (event) => {
   event.preventDefault();
-  handleSubmit();
-});
 
-function handleSubmit() {
   const answers = questions.map((_, index) => {
     const value = parseInt(document.getElementById(`question-${index}`).value, 10) || 1;
     return Math.min(Math.max(value, 1), 5);
@@ -134,14 +131,14 @@ function handleSubmit() {
         derivedStats
       });
 
-      // Cargar escena principal
+      // Cargar la escena principal
       container.remove();
       loadThreeScene({ x: 0, y: 0, z: 0, color: colorHex, stats: derivedStats });
     } else {
       alert("No se encontró un usuario autenticado.");
     }
   });
-}
+});
 
 // Renderizar el cuestionario al cargar la página
 export function loadCharacterCreator(userId) {
