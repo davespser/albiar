@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { TerrainMesh } from "../terrain2/TerrainMesh";
+import { TerrainMesh } from "../terrain2/TerrainMesh.js";
 import { createMenu, createJoypad, createStats } from "./ui.js"; // Importar funciones de interfaz
 import { createFloor } from "./ground.js"; // Importar la función para crear el suelo
 
