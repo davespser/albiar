@@ -1,5 +1,3 @@
-// Archivo: characterCreator.js
-
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
 import { database } from "./firebase-config.js";
 import { ref, update } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js";
@@ -14,7 +12,6 @@ const questions = [
   "¿Qué tan rápido te recuperas de un esfuerzo físico? (1-5)",
   "¿Qué tan constante eres al trabajar en tus metas? (1-5)",
   "¿Qué tan hábil eres en tareas que requieren fuerza? (1-5)",
-
   "¿Qué tan rápido eres en tus movimientos? (1-5)",
   "¿Qué tan coordinado te consideras? (1-5)",
   "¿Qué tan ágil eres en actividades físicas? (1-5)",
@@ -22,7 +19,6 @@ const questions = [
   "¿Qué tan equilibrado te sientes físicamente? (1-5)",
   "¿Qué tan reactivo eres ante estímulos? (1-5)",
   "¿Qué tan eficiente eres corriendo? (1-5)",
-
   "¿Qué tan lógico eres al resolver problemas? (1-5)",
   "¿Qué tan creativo eres en tus ideas? (1-5)",
   "¿Qué tan hábil eres para planificar estrategias? (1-5)",
@@ -38,13 +34,13 @@ container.id = "questionnaire";
 container.style.width = "300px";
 container.style.position = "absolute";
 container.style.top = "1%";
-container.style.right = "20px"; // Cambia 'left' a 'right' para posicionarlo a la derecha
-container.style.fontSize = "15px"; // Corrección de error tipográfico
+container.style.right = "20px";
+container.style.fontSize = "15px";
 container.style.display = "flex";
-container.style.flexDirection = "column"; // Organiza los elementos verticalmente
+container.style.flexDirection = "column";
 container.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-container.style.alignItems = "flex-start"; // Alinea el texto a la izquierda
-container.style.color = "white"; // Corrección de minuscula
+container.style.alignItems = "flex-start";
+container.style.color = "white";
 container.style.padding = "20px";
 container.style.borderRadius = "15px";
 container.style.fontFamily = "Arial, sans-serif";
@@ -140,40 +136,13 @@ submitButton.addEventListener("click", async (event) => {
 });
 
 // Renderizar el cuestionario al cargar la página
-renderQuestions();
-
 export function loadCharacterCreator(userId) {
-  document.body.innerHTML = `
-    <div id="character-creator">
-      <h1>¡Crea tu personaje!</h1>
-      <form id="character-form">
-        <label for="color">Color:</label>
-        <input type="color" id="color" value="#ff0000" />
-        <button type="submit">Guardar</button>
-      </form>
-    </div>
-  `;
+  document.body.innerHTML = ""; // Limpia el contenido actual
+  const container = document.createElement("div");
+  container.id = "questionnaire";
+  container.innerHTML = "<h1>Creación de Personaje</h1>";
+  document.body.appendChild(container);
 
-  const form = document.getElementById("character-form");
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const color = document.getElementById("color").value;
-
-    // Guardar los datos del personaje en la base de datos
-    const userData = {
-      characterCreated: true,
-      color: color,
-      position: { x: 0, y: 0, z: 0 },
-      derivedStats: { speed: 10, strength: 5 } // Ejemplo de estadísticas
-    };
-
-    saveUserData(userId, userData);
-
-    // Cargar la escena del juego
-    loadThreeScene({
-      ...userData.position,
-      color: userData.color,
-      stats: userData.derivedStats
-    });
-  });
+  // Renderizar preguntas
+  renderQuestions();
 }
