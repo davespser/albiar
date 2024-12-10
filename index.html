@@ -11,11 +11,13 @@
     {
       "imports": {
         "three": "https://cdn.jsdelivr.net/npm/three@0.166/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.166/examples/jsm/",
-        "cannon": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.166/examples/jsm/"
       }
     }
   </script>
+
+  <!-- Cargar Cannon.js desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"></script>
 </head>
 <body>
   <!-- Contenedor principal -->
@@ -72,43 +74,6 @@
   </div>
 
   <!-- Scripts -->
-  <script type="module">
-    import { loadThreeScene, unloadThreeScene } from "./js/three-scene.js";
-
-    // Lógica para cargar o descargar la escena
-    function loadScene() {
-      loadThreeScene({
-        x: 0,
-        y: 0,
-        z: 0,
-        color: 0xff4500,
-        stats: {}
-      });
-    }
-
-    function unloadScene() {
-      unloadThreeScene();
-    }
-
-    // Firebase lógica (puedes ajustar según tu configuración)
-    function handleRegister() {
-      const email = document.getElementById("register-email").value;
-      const password = document.getElementById("register-password").value;
-      console.log("Registrarse:", email, password);
-      // Implementar registro con Firebase
-    }
-
-    function handleLogin() {
-      const email = document.getElementById("login-email").value;
-      const password = document.getElementById("login-password").value;
-      console.log("Iniciar Sesión:", email, password);
-      // Implementar inicio de sesión con Firebase
-    }
-
-    function handleLogout() {
-      console.log("Cerrar Sesión");
-      // Implementar cierre de sesión con Firebase
-    }
-  </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
