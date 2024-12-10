@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menú Desplegable</title>
+  <title>Menú Desplegable y Three.js</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Import Map -->
+  <!-- Import Map para módulos -->
   <script type="importmap">
     {
       "imports": {
@@ -18,11 +18,31 @@
   </script>
 </head>
 <body>
+  <!-- Contenedor principal -->
   <div id="app-container">
     <h1>Inicie sesión o regístrese</h1>
+
+    <!-- Controles de registro e inicio de sesión -->
+    <h2>Registro</h2>
+    <input type="email" id="register-email" placeholder="Correo">
+    <input type="password" id="register-password" placeholder="Contraseña">
+    <button onclick="handleRegister()">Registrarse</button>
+
+    <h2>Inicio de Sesión</h2>
+    <input type="email" id="login-email" placeholder="Correo">
+    <input type="password" id="login-password" placeholder="Contraseña">
+    <button onclick="handleLogin()">Iniciar Sesión</button>
+
+    <h2>Sesión Activa</h2>
+    <button onclick="handleLogout()">Cerrar Sesión</button>
+
+    <!-- Contenedor para mensajes -->
+    <div id="messages"></div>
   </div>
-<div class="menu-container">
-    <!-- Input checkbox oculto para manejar el estado -->
+
+  <!-- Menú desplegable -->
+  <div class="menu-container">
+    <!-- Checkbox oculto para manejar el estado -->
     <input type="checkbox" id="toggle" class="hidden-input">
 
     <!-- Botón principal del menú -->
@@ -32,39 +52,63 @@
 
     <!-- Contenido desplegable -->
     <div class="menu-content">
+      <div class="menu-item" data-action="option1">
+        <span>🔸</span> Opción 1
+      </div>
       <div class="menu-item" data-action="option2">
         <span>🔸</span> Opción 2
       </div>
       <div class="menu-item" data-action="option3">
         <span>🔸</span> Opción 3
       </div>
-      <div class="menu-item" data-action="option4">
-        <span>🔸</span> Opción 4
-      </div>
     </div>
   </div>
 
-  <!-- Scripts de módulos -->
-  <script type="module" src="js/app.js"></script>
-  <script type="module" src="js/characterCreator.js"></script>
-  <script type="module" src="js/three-scene.js"></script>
-  
-  <h1>Firebase + Three.js</h1>
+  <!-- Contenedor de Three.js -->
+  <div id="three-container">
+    <h1>Three.js + Firebase</h1>
+    <button onclick="loadScene()">Cargar Escena</button>
+    <button onclick="unloadScene()">Descargar Escena</button>
+  </div>
 
-  <h2>Registro</h2>
-  <input type="email" id="register-email" placeholder="Correo">
-  <input type="password" id="register-password" placeholder="Contraseña">
-  <button onclick="handleRegister()">Registrarse</button>
+  <!-- Scripts -->
+  <script type="module">
+    import { loadThreeScene, unloadThreeScene } from "./js/three-scene.js";
 
-  <h2>Inicio de Sesión</h2>
-  <input type="email" id="login-email" placeholder="Correo">
-  <input type="password" id="login-password" placeholder="Contraseña">
-  <button onclick="handleLogin()">Iniciar Sesión</button>
+    // Lógica para cargar o descargar la escena
+    function loadScene() {
+      loadThreeScene({
+        x: 0,
+        y: 0,
+        z: 0,
+        color: 0xff4500,
+        stats: {}
+      });
+    }
 
-  <h2>Sesión Activa</h2>
-  <button onclick="handleLogout()">Cerrar Sesión</button>
+    function unloadScene() {
+      unloadThreeScene();
+    }
 
-  <!-- Contenedor para mensajes -->
-  <div id="messages"></div>
+    // Firebase lógica (puedes ajustar según tu configuración)
+    function handleRegister() {
+      const email = document.getElementById("register-email").value;
+      const password = document.getElementById("register-password").value;
+      console.log("Registrarse:", email, password);
+      // Implementar registro con Firebase
+    }
+
+    function handleLogin() {
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      console.log("Iniciar Sesión:", email, password);
+      // Implementar inicio de sesión con Firebase
+    }
+
+    function handleLogout() {
+      console.log("Cerrar Sesión");
+      // Implementar cierre de sesión con Firebase
+    }
+  </script>
 </body>
 </html>
