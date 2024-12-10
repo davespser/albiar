@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { TerrainGeometry } from ".js/terrain2/TerrainGeometry";
+import { TerrainGeometry } from "./js/terrain2/TerrainGeometry.js";
 
 export class TerrainMesh {
   static create(vertices, indices) {
