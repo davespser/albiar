@@ -108,16 +108,13 @@ function loadUserData(userId) {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("Sesión activa con usuario:", user);
-    loadUserData(user.uid); // Esto manejará la transición a la escena o creador
+
+    // Cargar datos del usuario e iniciar la escena o el creador de personajes
+    loadUserData(user.uid);
   } else {
     console.log("No hay ningún usuario conectado.");
-    unloadThreeScene(); // Limpia la escena si el usuario cierra sesión
-    document.body.innerHTML = `
-      <div id="auth-container">
-        <h1>Inicia sesión o regístrate</h1>
-        <!-- Aquí puedes colocar el formulario de autenticación -->
-      </div>
-    `;
+    unloadThreeScene(); // Desmontar la escena si no hay usuario
+    document.body.innerHTML = "<h1>Inicie sesión o regístrese</h1>"; // Mostrar mensaje
   }
 });
 
