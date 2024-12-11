@@ -28,15 +28,15 @@
     <h2>Registro</h2>
     <input type="email" id="register-email" placeholder="Correo">
     <input type="password" id="register-password" placeholder="Contraseña">
-    <button onclick="handleRegister()">Registrarse</button>
+    <button id="register-button">Registrarse</button>
 
     <h2>Inicio de Sesión</h2>
     <input type="email" id="login-email" placeholder="Correo">
     <input type="password" id="login-password" placeholder="Contraseña">
-    <button onclick="handleLogin()">Iniciar Sesión</button>
+    <button id="login-button">Iniciar Sesión</button>
 
     <h2>Sesión Activa</h2>
-    <button onclick="handleLogout()">Cerrar Sesión</button>
+    <button id="logout-button">Cerrar Sesión</button>
 
     <!-- Contenedor para mensajes -->
     <div id="messages"></div>
@@ -69,11 +69,25 @@
   <!-- Contenedor de Three.js -->
   <div id="three-container">
     <h1>Three.js + Firebase</h1>
-    <button onclick="loadScene()">Cargar Escena</button>
-    <button onclick="unloadScene()">Descargar Escena</button>
+    <button id="load-scene-button">Cargar Escena</button>
+    <button id="unload-scene-button">Descargar Escena</button>
   </div>
 
   <!-- Scripts -->
+  <script type="module" src="js/firebase-config.js"></script>
   <script type="module" src="js/app.js"></script>
+
+  <script type="module">
+    import { handleRegister, handleLogin, handleLogout } from './js/firebase-config.js';
+    import { loadScene, unloadScene } from './js/app.js';
+
+    // Agregar manejadores de eventos
+    document.getElementById("register-button").addEventListener("click", handleRegister);
+    document.getElementById("login-button").addEventListener("click", handleLogin);
+    document.getElementById("logout-button").addEventListener("click", handleLogout);
+
+    document.getElementById("load-scene-button").addEventListener("click", loadScene);
+    document.getElementById("unload-scene-button").addEventListener("click", unloadScene);
+  </script>
 </body>
 </html>
