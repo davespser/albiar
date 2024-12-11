@@ -28,37 +28,30 @@ const questions = [
   "¿Qué tan analítico eres en situaciones complejas? (1-5)"
 ];
 
-// Elementos del DOM
-const container = document.createElement("div");
-container.id = "questionnaire";
-container.style.width = "300px";
-container.style.position = "absolute";
-container.style.top = "1%";
-container.style.right = "20px";
-container.style.fontSize = "15px";
-container.style.display = "flex";
-container.style.flexDirection = "column";
-container.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-container.style.alignItems = "flex-start";
-container.style.color = "white";
-container.style.padding = "20px";
-container.style.borderRadius = "15px";
-container.style.fontFamily = "Arial, sans-serif";
-container.style.textAlign = "left";
-document.body.appendChild(container);
+// Crear el contenedor del cuestionario
+function createContainer() {
+  const container = document.createElement("div");
+  container.id = "questionnaire";
+  container.style.width = "300px";
+  container.style.position = "absolute";
+  container.style.top = "1%";
+  container.style.right = "20px";
+  container.style.fontSize = "15px";
+  container.style.display = "flex";
+  container.style.flexDirection = "column";
+  container.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+  container.style.alignItems = "flex-start";
+  container.style.color = "white";
+  container.style.padding = "20px";
+  container.style.borderRadius = "15px";
+  container.style.fontFamily = "Arial, sans-serif";
+  container.style.textAlign = "left";
+  document.body.appendChild(container);
+  return container;
+}
 
-const submitButton = document.createElement("button");
-submitButton.innerText = "Finalizar";
-submitButton.style.padding = "10px 20px";
-submitButton.style.marginTop = "20px";
-submitButton.style.backgroundColor = "#4CAF50";
-submitButton.style.color = "white";
-submitButton.style.border = "none";
-submitButton.style.cursor = "pointer";
-
-let responses = [];
-
-function renderQuestions() {
+// Renderizar preguntas
+function renderQuestions(container) {
   container.innerHTML = "<h1>Creación de Personaje</h1>";
   questions.forEach((question, index) => {
     const questionDiv = document.createElement("div");
@@ -68,9 +61,20 @@ function renderQuestions() {
     `;
     container.appendChild(questionDiv);
   });
+
+  const submitButton = document.createElement("button");
+  submitButton.innerText = "Finalizar";
+  submitButton.style.padding = "10px 20px";
+  submitButton.style.marginTop = "20px";
+  submitButton.style.backgroundColor = "#4CAF50";
+  submitButton.style.color = "white";
+  submitButton.style.border = "none";
+  submitButton.style.cursor = "pointer";
+  submitButton.addEventListener("click", handleSubmit);
   container.appendChild(submitButton);
 }
 
+// Calcular estadísticas del personaje
 function calculateCharacterData(r, g, b) {
   const total = r + g + b;
   return {
@@ -80,31 +84,11 @@ function calculateCharacterData(r, g, b) {
     defense: ((r * 0.6 + g * 0.4) / 255) * 100,
     precision: ((g + b) / 510) * 100,
     vitality: (total / 765) * 100,
-    agility: (g / 255) * 100,
-    intelligence: (b / 255) * 100,
-    endurance: (r / 255) * 50 + (g / 255) * 50,
-    charisma: (b / 255) * 75,
-    perception: (g / 255) * 75,
-    creativity: (b / 255) * 100,
-    leadership: (r / 255) * 100,
-    stealth: (g / 255) * 100,
-    resilience: ((r + g) / 510) * 100,
-    bravery: (r / 255) * 100,
-    focus: (b / 255) * 100,
-    luck: ((g + b) / 510) * 50,
-    energy: (total / 765) * 100,
-    harmony: ((r + g + b) / (255 * 3)) * 100
   };
 }
 
-submitButton.addEventListener("touchend", async (event) => {
-  event.preventDefault();
-  handleSubmit();
-});
-
-submitButton.addEventListener("click", async (event) => {
-  event.preventDefault();
-
+// Manejar envío de respuestas
+async function handleSubmit() {
   const answers = questions.map((_, index) => {
     const value = parseInt(document.getElementById(`question-${index}`).value, 10) || 1;
     return Math.min(Math.max(value, 1), 5);
@@ -117,13 +101,10 @@ submitButton.addEventListener("click", async (event) => {
   const colorHex = `#${red.toString(16).padStart(2, "0")}${green.toString(16).padStart(2, "0")}${blue.toString(16).padStart(2, "0")}`;
   const derivedStats = calculateCharacterData(red, green, blue);
 
-  // Obtener usuario actual
   const auth = getAuth();
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       const userRef = ref(database, `players/${user.uid}`);
-
-      // Guardar datos en Firebase
       await update(userRef, {
         characterCreated: true,
         stats: { red, green, blue },
@@ -131,23 +112,16 @@ submitButton.addEventListener("click", async (event) => {
         derivedStats
       });
 
-      // Cargar la escena principal
-      container.remove();
+      document.getElementById("questionnaire").remove();
       loadThreeScene({ x: 0, y: 0, z: 0, color: colorHex, stats: derivedStats });
     } else {
       alert("No se encontró un usuario autenticado.");
     }
   });
-});
+}
 
-// Renderizar el cuestionario al cargar la página
-export function loadCharacterCreator(userId) {
-  document.body.innerHTML = ""; // Limpia el contenido actual
-  const container = document.createElement("div");
-  container.id = "questionnaire";
-  container.innerHTML = "<h1>Creación de Personaje</h1>";
-  document.body.appendChild(container);
-
-  // Renderizar preguntas
-  renderQuestions();
+// Inicializar el creador de personajes
+export function loadCharacterCreator() {
+  const container = createContainer();
+  renderQuestions(container);
 }
